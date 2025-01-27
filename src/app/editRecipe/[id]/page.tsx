@@ -41,8 +41,8 @@ export default function EditRecipeForm() {
   const [steps, setSteps] = useState<string[]>([]);
   const [ingredientInput, setIngredientInput] = useState('');
   const [stepInput, setStepInput] = useState('');
-  const [loading, setLoading] = useState(false); 
-  const [pageLoading, setPageLoading] = useState(true); 
+  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [formError, setFormError] = useState<string | null>(null);
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [imageDeleted, setImageDeleted] = useState<boolean>(false);
@@ -56,7 +56,7 @@ export default function EditRecipeForm() {
 
   const params = useParams();
   const router = useRouter();
-  
+
   const recipeId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   useEffect(() => {
@@ -102,7 +102,7 @@ export default function EditRecipeForm() {
       } catch (error) {
         setFormError('Something went wrong while loading the recipe.');
       } finally {
-        setPageLoading(false); 
+        setPageLoading(false);
       }
     };
 
@@ -125,7 +125,7 @@ export default function EditRecipeForm() {
     try {
       let mediaUrl = imagePreview;
       let mimeTypeToSend = mimeType;
-      let file = newFile; 
+      let file = newFile;
 
       if (imageDeleted) {
         mediaUrl = null;
@@ -133,7 +133,6 @@ export default function EditRecipeForm() {
         file = null;
       }
 
-    
       const acceptedImageTypes = [
         'image/jpeg',
         'image/png',
@@ -152,7 +151,7 @@ export default function EditRecipeForm() {
         const signedUrl = await getSignedUrlForExistingFile(
           file.type,
           file.size,
-          finalFileName 
+          finalFileName
         );
 
         if (signedUrl.error) {
@@ -191,7 +190,7 @@ export default function EditRecipeForm() {
         steps.join(', '),
         ingredients.join(', '),
         data.categoryId,
-        finalFileName, 
+        finalFileName,
         mimeTypeToSend
       );
 

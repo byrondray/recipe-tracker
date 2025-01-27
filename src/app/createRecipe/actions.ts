@@ -15,10 +15,10 @@ import { auth } from '@/auth';
 import crypto from 'crypto';
 
 const s3 = new S3Client({
-  region: process.env.AWS_BUCKET_REGION,
+  region: process.env.MY_AWS_BUCKET_REGION,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY!,
-    secretAccessKey: process.env.AWS_SECRET_KEY!,
+    accessKeyId: process.env.MY_AWS_ACCESS_KEY!,
+    secretAccessKey: process.env.MY_AWS_SECRET_KEY!,
   },
 });
 
