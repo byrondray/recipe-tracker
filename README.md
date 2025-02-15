@@ -5,9 +5,3 @@ Welcome to the Recipe App! This app allows users to post their favorite recipes 
 ## Checkout the live version
 
 https://recipe-tracker-pcw2.vercel.app/
-
-# Getting Started
-
-1. clone the repository
-2. npm install
-3. check env.example to see how envs are supposed to be added and add them or message me for mine
