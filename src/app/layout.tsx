@@ -7,7 +7,7 @@ import { auth } from '@/auth';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Cookbook+',
+  title: 'CookBook+',
   description: 'A cookbook to find new recipes and keep track of your own',
 };
 

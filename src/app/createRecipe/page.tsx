@@ -181,54 +181,72 @@ export default function CreateRecipeForm() {
   };
 
   return (
-    <div className='flex justify-center py-12 min-h-screen bg-white'>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className='bg-gray-100 shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 w-full max-w-4xl border border-navyBlue grid grid-cols-2 gap-8'
-      >
+    <div className='min-h-screen bg-gradient-to-br from-orange-50 to-red-50'>
+      {/* Hero Section */}
+      <div className='relative overflow-hidden bg-gradient-to-r from-orange-400 to-red-500 text-white'>
+        <div className='absolute inset-0 bg-black opacity-10'></div>
+        <div className='relative container mx-auto px-4 py-16 text-center'>
+          <h1 className='text-4xl md:text-6xl font-bold mb-4 animate-fade-in-down'>
+            Create New Recipe
+          </h1>
+          <p className='text-lg md:text-xl opacity-90 animate-fade-in-up'>
+            Share your culinary masterpiece with the world
+          </p>
+        </div>
+        <div className='absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-orange-50 to-transparent'></div>
+      </div>
+
+      <div className='container mx-auto px-4 -mt-8 relative z-10 pb-12'>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className='bg-white rounded-2xl shadow-2xl px-8 pt-8 pb-8 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 transform transition-all duration-300 hover:shadow-3xl'
+        >
         <div>
-          <h2 className='text-2xl font-bold text-navyBlue mb-6'>
-            Create Recipe
+          <h2 className='text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-8'>
+            Recipe Details
           </h2>
 
-          <div className='mb-4'>
+          <div className='mb-6'>
             <label
-              className='block text-night font-bold mb-2'
+              className='block text-gray-700 font-semibold mb-3'
               htmlFor='recipeName'
             >
               Recipe Name
             </label>
             <input
-              className='shadow appearance-none border rounded w-full py-2 px-3 text-navyBlue leading-tight focus:outline-none focus:shadow-outline border-navyBlue'
+              className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:border-orange-400 focus:outline-none transition-all duration-200 shadow-sm'
               id='recipeName'
               type='text'
-              placeholder='Enter recipe name'
+              placeholder='Enter your recipe name...'
               {...register('recipeName', { required: true })}
             />
             {errors.recipeName && (
-              <p className='text-red-500 text-xs italic'>
+              <p className='text-red-500 text-sm mt-2 flex items-center'>
+                <svg className='w-4 h-4 mr-1' fill='currentColor' viewBox='0 0 20 20'>
+                  <path fillRule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z' clipRule='evenodd' />
+                </svg>
                 Recipe name is required.
               </p>
             )}
           </div>
 
-          <div className='mb-4'>
+          <div className='mb-6'>
             <label
-              className='block text-night font-bold mb-2'
+              className='block text-gray-700 font-semibold mb-3'
               htmlFor='category'
             >
               Category
             </label>
             <div className='relative'>
               <select
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-navyBlue leading-tight focus:outline-none focus:shadow-outline border-navyBlue bg-white pr-8 ${
-                  categoryError ? 'border-red-500' : ''
+                className={`w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-700 focus:border-orange-400 focus:outline-none transition-all duration-200 shadow-sm appearance-none bg-white pr-10 ${
+                  categoryError ? 'border-red-400' : ''
                 }`}
                 id='category'
                 {...register('categoryId', { required: true })}
               >
                 <option value='' disabled>
-                  Select a category
+                  Choose a category...
                 </option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -237,24 +255,38 @@ export default function CreateRecipeForm() {
                 ))}
               </select>
 
-              <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-navyBlue'>
+              <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400'>
                 <svg
-                  className='fill-current h-4 w-4'
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 20 20'
+                  className='w-5 h-5'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
                 >
-                  <path d='M7 7l3-3 3 3h-6z' />
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M19 9l-7 7-7-7'
+                  />
                 </svg>
               </div>
             </div>
 
             {errors.categoryId && (
-              <p className='text-red-500 text-xs italic'>
+              <p className='text-red-500 text-sm mt-2 flex items-center'>
+                <svg className='w-4 h-4 mr-1' fill='currentColor' viewBox='0 0 20 20'>
+                  <path fillRule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z' clipRule='evenodd' />
+                </svg>
                 Please select a category.
               </p>
             )}
             {categoryError && (
-              <p className='text-red-500 text-xs italic'>{categoryError}</p>
+              <p className='text-red-500 text-sm mt-2 flex items-center'>
+                <svg className='w-4 h-4 mr-1' fill='currentColor' viewBox='0 0 20 20'>
+                  <path fillRule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z' clipRule='evenodd' />
+                </svg>
+                {categoryError}
+              </p>
             )}
           </div>
 
