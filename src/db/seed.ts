@@ -1,5 +1,4 @@
 import {
-  db,
   authenticators,
   users,
   recipe,
@@ -8,6 +7,7 @@ import {
   verificationTokens,
   category,
 } from '@/db/schema/schema';
+import { db } from '@/lib/db';
 import { v4 as uuid } from 'uuid';
 
 const categoiresSeed = [

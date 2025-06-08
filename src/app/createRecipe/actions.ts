@@ -9,7 +9,7 @@ import {
   media,
   Media,
 } from '@/db/schema/schema';
-import { db } from '@/db/schema/schema';
+import { db } from '@/lib/db';
 import { recipe as recipeSchema } from '@/db/schema/schema';
 import { auth } from '@/auth';
 import crypto from 'crypto';

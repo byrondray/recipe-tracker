@@ -221,7 +221,7 @@ export default function HomePage() {
           <div className='text-center py-16'>
             <div className='w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
               <svg
-                className='w-12 h-12 text-gray-400'
+                className='w-12 h-12 text-gray-500'
                 fill='none'
                 stroke='currentColor'
                 viewBox='0 0 24 24'
@@ -235,7 +235,7 @@ export default function HomePage() {
               </svg>
             </div>
             <p className='text-xl text-gray-600'>No recipes found</p>
-            <p className='text-gray-500 mt-2'>
+            <p className='text-gray-600 mt-2'>
               Try searching with different keywords
             </p>
           </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { FaTrashAlt } from 'react-icons/fa';
+import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -90,10 +91,12 @@ export default function EditRecipeForm() {
           setValue('recipeName', recipe.title);
           setValue('categoryId', recipe.category);
           setIngredients(
-            recipe.ingredients.split(',').map((item) => item.trim())
+            recipe.ingredients.split(',').map((item: string) => item.trim())
           );
           setFileName(recipe.media);
-          setSteps((recipe.steps ?? '').split(',').map((item) => item.trim()));
+          setSteps(
+            (recipe.steps ?? '').split(',').map((item: string) => item.trim())
+          );
           setImagePreview(imageUrl);
           setImageDeleted(false);
         } else {
@@ -108,7 +111,7 @@ export default function EditRecipeForm() {
 
     fetchCategories();
     fetchRecipeData();
-  }, [recipeId, setValue]);
+  }, [recipeId, setValue, router]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     setFormError(null);
@@ -357,16 +360,18 @@ export default function EditRecipeForm() {
               onChange={handleImageChange}
             />
             {imagePreview && (
-              <div className='relative mb-4'>
-                <img
+              <div className='relative mb-4 h-64'>
+                <Image
                   src={imagePreview}
                   alt='Recipe Preview'
-                  className='w-full h-auto rounded-md'
+                  fill
+                  sizes='(max-width: 768px) 100vw, 50vw'
+                  className='object-cover rounded-md'
                 />
                 <button
                   type='button'
                   onClick={deleteCurrentImage}
-                  className='absolute top-2 right-2 text-red-500'
+                  className='absolute top-2 right-2 text-red-500 bg-white p-1 rounded-full shadow-md'
                 >
                   <FaTrashAlt className='w-6 h-6' />
                 </button>
@@ -428,7 +433,7 @@ export default function EditRecipeForm() {
                   </div>
                 ))
               ) : (
-                <p className='text-gray-500'>No ingredients added</p>
+                <p className='text-gray-600'>No ingredients added</p>
               )}
             </ScrollArea>
           </div>
@@ -465,7 +470,7 @@ export default function EditRecipeForm() {
                   </div>
                 ))
               ) : (
-                <p className='text-gray-500'>No steps added</p>
+                <p className='text-gray-600'>No steps added</p>
               )}
             </ScrollArea>
           </div>

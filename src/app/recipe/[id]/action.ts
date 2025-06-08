@@ -1,12 +1,8 @@
 'use server';
 
 import { auth } from '@/auth';
-import {
-  category,
-  db,
-  media,
-  recipe as recipeSchema,
-} from '@/db/schema/schema';
+import { category, media, recipe as recipeSchema } from '@/db/schema/schema';
+import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 
 export async function getRecipe(id: string) {

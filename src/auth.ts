@@ -2,16 +2,12 @@ import type { NextAuthConfig } from 'next-auth';
 import NextAuth from 'next-auth';
 import GitHub from 'next-auth/providers/github';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
-import { db } from '@/db/schema/schema';
+import { db } from '@/lib/db';
 
+// Auth config for middleware (Edge Runtime compatible)
 export const authConfig = {
-  adapter: DrizzleAdapter(db),
   providers: [GitHub],
   callbacks: {
-    async session({ session, user }) {
-      session.user.id = user.id;
-      return session;
-    },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const paths = [
@@ -35,4 +31,17 @@ export const authConfig = {
   },
 } satisfies NextAuthConfig;
 
-export const { handlers, auth, signOut } = NextAuth(authConfig);
+// Full auth config with adapter (for non-middleware use)
+const fullAuthConfig = {
+  ...authConfig,
+  adapter: DrizzleAdapter(db),
+  callbacks: {
+    ...authConfig.callbacks,
+    async session({ session, user }) {
+      session.user.id = user.id;
+      return session;
+    },
+  },
+} satisfies NextAuthConfig;
+
+export const { handlers, auth, signOut } = NextAuth(fullAuthConfig);

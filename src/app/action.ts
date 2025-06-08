@@ -1,6 +1,7 @@
 'use server';
 
-import { category, db, media, recipe } from '@/db/schema/schema';
+import { category, media, recipe } from '@/db/schema/schema';
+import { db } from '@/lib/db';
 import { eq, ilike, or } from 'drizzle-orm';
 
 export async function getRecipes() {

@@ -2,6 +2,7 @@
 
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { type Session } from 'next-auth';
 import { useEffect, useState } from 'react';
 import { getCurrentUserData } from '../recipe/[id]/action';
@@ -119,7 +120,7 @@ export default function Navbar({ session }: { session: Session | null }) {
                         <p className='font-semibold text-gray-800'>
                           Explore Recipes
                         </p>
-                        <p className='text-sm text-gray-500'>
+                        <p className='text-sm text-gray-600'>
                           Browse all recipes
                         </p>
                       </div>
@@ -149,7 +150,7 @@ export default function Navbar({ session }: { session: Session | null }) {
                         <p className='font-semibold text-gray-800'>
                           Create Recipe
                         </p>
-                        <p className='text-sm text-gray-500'>
+                        <p className='text-sm text-gray-600'>
                           Share your creation
                         </p>
                       </div>
@@ -179,7 +180,7 @@ export default function Navbar({ session }: { session: Session | null }) {
                         <p className='font-semibold text-gray-800'>
                           Your Recipes
                         </p>
-                        <p className='text-sm text-gray-500'>
+                        <p className='text-sm text-gray-600'>
                           View your collection
                         </p>
                       </div>
@@ -203,9 +204,11 @@ export default function Navbar({ session }: { session: Session | null }) {
                       {session.user?.name}
                     </p>
                   </div>
-                  <img
+                  <Image
                     src={session.user?.image || '/default-avatar.png'}
                     alt='User Avatar'
+                    width={40}
+                    height={40}
                     className='w-10 h-10 rounded-full border-2 border-orange-400 shadow-md'
                   />
                 </div>
@@ -354,9 +357,11 @@ export default function Navbar({ session }: { session: Session | null }) {
               {session ? (
                 <div className='space-y-3'>
                   <div className='flex items-center space-x-3 px-3'>
-                    <img
+                    <Image
                       src={session.user?.image || '/default-avatar.png'}
                       alt='User Avatar'
+                      width={32}
+                      height={32}
                       className='w-8 h-8 rounded-full border-2 border-orange-400'
                     />
                     <span className='font-medium text-gray-800'>

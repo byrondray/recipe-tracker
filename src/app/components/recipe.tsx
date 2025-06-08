@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getCurrentUserData } from '../recipe/[id]/action';
 import { useEffect, useState } from 'react';
@@ -53,11 +54,13 @@ export const Recipe = ({
                 <div className='animate-spin rounded-full h-10 w-10 border-4 border-orange-500 border-t-transparent'></div>
               </div>
             )}
-            <img
+            <Image
               src={imageUrl}
               alt={title}
+              fill
+              sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
               onLoad={() => setImageLoading(false)}
-              className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
+              className={`object-cover transition-all duration-500 group-hover:scale-110 ${
                 imageLoading ? 'opacity-0' : 'opacity-100'
               }`}
             />

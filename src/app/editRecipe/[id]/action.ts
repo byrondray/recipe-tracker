@@ -1,9 +1,9 @@
 'use server';
 import {
-  db,
   recipe as recipeSchema,
   media as mediaSchema,
 } from '@/db/schema/schema';
+import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 import {
   S3Client,
@@ -203,7 +203,7 @@ export async function deleteMedia(id: string) {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: mediaKey!,
     });
-    
+
     await s3.send(deleteObjectCommand);
 
     await db
