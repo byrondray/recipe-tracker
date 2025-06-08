@@ -257,7 +257,7 @@ export default function RecipePage() {
 
               {/* Steps */}
               <div>
-                <h3 className='text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6'>
+                <h3 className='text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-6'>
                   Cooking Steps
                 </h3>
                 <div className='bg-gray-50 rounded-xl p-6 border border-gray-200'>

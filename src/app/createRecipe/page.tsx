@@ -445,7 +445,7 @@ export default function CreateRecipeForm() {
 
           <div className='flex flex-col space-y-8'>
             <div>
-              <h3 className='text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-4'>
+              <h3 className='text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-4'>
                 Ingredients
               </h3>
               <div className='flex gap-3'>
@@ -459,7 +459,7 @@ export default function CreateRecipeForm() {
                 <button
                   type='button'
                   onClick={addIngredient}
-                  className='bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-xl font-medium hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
+                  className='bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-xl font-medium hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
                 >
                   Add
                 </button>
@@ -529,7 +529,7 @@ export default function CreateRecipeForm() {
             </div>
 
             <div>
-              <h3 className='text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4'>
+              <h3 className='text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-4'>
                 Cooking Steps
               </h3>
               <div className='flex gap-3'>
@@ -543,7 +543,7 @@ export default function CreateRecipeForm() {
                 <button
                   type='button'
                   onClick={addStep}
-                  className='bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
+                  className='bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
                 >
                   Add
                 </button>
