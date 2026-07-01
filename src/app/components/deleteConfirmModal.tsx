@@ -78,7 +78,10 @@ export function DeleteConfirmModal({
     >
       <div
         className='absolute inset-0 bg-gray-900/60 backdrop-blur-sm animate-fade-in'
-        onClick={() => !loading && onCancel()}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!loading) onCancel();
+        }}
       />
 
       <div
@@ -87,6 +90,7 @@ export function DeleteConfirmModal({
         aria-modal='true'
         aria-labelledby='delete-modal-title'
         aria-describedby='delete-modal-description'
+        onClick={(e) => e.stopPropagation()}
         className='relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 sm:p-8 animate-scale-in'
       >
         <div className='w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5'>

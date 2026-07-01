@@ -43,6 +43,7 @@ export const Recipe = ({
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     router.push(`/recipe/${id}`);
   };
 
@@ -70,7 +71,10 @@ export const Recipe = ({
   };
 
   return (
-    <div className='group relative bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl'>
+    <div
+      onClick={handleClick}
+      className='group relative bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer'
+    >
       {/* Image Container */}
       <div className='relative h-56 sm:h-64 overflow-hidden bg-gray-100'>
         {imageUrl && !imageError ? (

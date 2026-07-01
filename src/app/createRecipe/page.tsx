@@ -455,6 +455,12 @@ export default function CreateRecipeForm() {
                 <input
                   value={ingredientInput}
                   onChange={(e) => setIngredientInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addIngredient();
+                    }
+                  }}
                   className='flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:border-green-400 focus:outline-none transition-all duration-200 shadow-sm'
                   type='text'
                   placeholder='Enter an ingredient...'
@@ -541,6 +547,12 @@ export default function CreateRecipeForm() {
                 <input
                   value={stepInput}
                   onChange={(e) => setStepInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addStep();
+                    }
+                  }}
                   className='flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:border-blue-400 focus:outline-none transition-all duration-200 shadow-sm'
                   type='text'
                   placeholder='Describe the next step...'

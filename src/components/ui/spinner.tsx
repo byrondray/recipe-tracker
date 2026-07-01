@@ -1,15 +1,29 @@
-export function Spinner({ className = '' }: { className?: string }) {
+export function Spinner({
+  className = '',
+  size = 40,
+  borderWidth = 4,
+}: {
+  className?: string;
+  size?: number;
+  borderWidth?: number;
+}) {
   return (
-    <div className={`spinner ${className}`}>
+    <div
+      className={`spinner ${className}`}
+      style={{
+        width: size,
+        height: size,
+        borderWidth,
+      }}
+    >
       <style jsx>{`
         .spinner {
           display: inline-block;
-          border: 4px solid rgba(0, 0, 0, 0.1);
+          border-color: rgba(0, 0, 0, 0.1);
+          border-style: solid;
           border-radius: 50%;
-          border-top-color: #3498db;
-          width: 40px;
-          height: 40px;
-          animation: spin 1s ease-in-out infinite;
+          border-top-color: currentColor;
+          animation: spin 1s linear infinite;
         }
 
         @keyframes spin {

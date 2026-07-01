@@ -4,16 +4,33 @@ import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { type Session } from 'next-auth';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+
+const MENU_CLOSE_DELAY_MS = 150;
 
 export default function Navbar({ session }: { session: Session | null }) {
   const currentUserId = session?.user?.id ?? null;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const closeMenus = () => {
     setIsMenuOpen(false);
     setIsMobileMenuOpen(false);
+  };
+
+  const openMenuOnHover = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setIsMenuOpen(true);
+  };
+
+  const scheduleMenuClose = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsMenuOpen(false);
+    }, MENU_CLOSE_DELAY_MS);
   };
 
   return (
@@ -45,7 +62,11 @@ export default function Navbar({ session }: { session: Session | null }) {
 
             {/* Desktop Navigation */}
             <div className='hidden md:flex items-center'>
-              <div className='relative'>
+              <div
+                className='relative'
+                onMouseEnter={openMenuOnHover}
+                onMouseLeave={scheduleMenuClose}
+              >
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   aria-expanded={isMenuOpen}
@@ -65,7 +86,7 @@ export default function Navbar({ session }: { session: Session | null }) {
                       d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
                     />
                   </svg>
-                  <span className='font-medium'>Recipe Options</span>
+                  <span className='font-medium'>Recipes</span>
                   <svg
                     className={`w-4 h-4 transition-transform duration-200 ${
                       isMenuOpen ? 'rotate-180' : ''
