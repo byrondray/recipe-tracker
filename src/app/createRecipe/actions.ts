@@ -54,6 +54,19 @@ export async function getSignedUrl(type: string, size: number) {
 
   const fileName = generateFileName();
 
+  console.log('DEBUG getSignedUrl', {
+    bucket: process.env.MY_AWS_BUCKET_NAME,
+    bucketType: typeof process.env.MY_AWS_BUCKET_NAME,
+    fileName,
+    fileNameType: typeof fileName,
+    type,
+    typeType: typeof type,
+    size,
+    sizeType: typeof size,
+    userId: session.userId,
+    userIdType: typeof session.userId,
+  });
+
   const putObjectCommand = new PutObjectCommand({
     Bucket: process.env.MY_AWS_BUCKET_NAME,
     Key: fileName,
