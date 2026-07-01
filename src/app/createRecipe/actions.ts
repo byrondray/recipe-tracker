@@ -55,7 +55,7 @@ export async function getSignedUrl(type: string, size: number) {
   const fileName = generateFileName();
 
   const putObjectCommand = new PutObjectCommand({
-    Bucket: process.env.AWS_BUCKET_NAME,
+    Bucket: process.env.MY_AWS_BUCKET_NAME,
     Key: fileName,
     ContentType: type,
     ContentLength: size,

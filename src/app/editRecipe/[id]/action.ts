@@ -200,7 +200,7 @@ export async function deleteMedia(id: string) {
     const mediaKey = mediaUrl.split('/').pop();
 
     const deleteObjectCommand = new DeleteObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
+      Bucket: process.env.MY_AWS_BUCKET_NAME,
       Key: mediaKey!,
     });
 
