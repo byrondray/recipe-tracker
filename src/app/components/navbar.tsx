@@ -4,24 +4,12 @@ import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { type Session } from 'next-auth';
-import { useEffect, useState } from 'react';
-import { getCurrentUserData } from '../recipe/[id]/action';
+import { useState } from 'react';
 
 export default function Navbar({ session }: { session: Session | null }) {
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const currentUserId = session?.user?.id ?? null;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const currentUser = await getCurrentUserData();
-      if (currentUser.success?.session?.user) {
-        setCurrentUserId(currentUser.success.session.user.id);
-      }
-    };
-
-    fetchUserData();
-  }, []);
 
   const closeMenus = () => {
     setIsMenuOpen(false);
@@ -60,6 +48,8 @@ export default function Navbar({ session }: { session: Session | null }) {
               <div className='relative'>
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  aria-expanded={isMenuOpen}
+                  aria-haspopup='menu'
                   className='flex items-center space-x-1 px-4 py-2 rounded-full hover:bg-orange-50 transition-all duration-200 text-gray-700 hover:text-orange-600'
                 >
                   <svg
@@ -126,65 +116,69 @@ export default function Navbar({ session }: { session: Session | null }) {
                       </div>
                     </Link>
 
-                    <Link
-                      href='/createRecipe'
-                      onClick={closeMenus}
-                      className='flex items-center space-x-3 px-5 py-3 hover:bg-orange-50 transition-colors duration-200 group border-t border-gray-100'
-                    >
-                      <div className='w-10 h-10 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors'>
-                        <svg
-                          className='w-5 h-5 text-green-600'
-                          fill='none'
-                          stroke='currentColor'
-                          viewBox='0 0 24 24'
+                    {currentUserId && (
+                      <>
+                        <Link
+                          href='/createRecipe'
+                          onClick={closeMenus}
+                          className='flex items-center space-x-3 px-5 py-3 hover:bg-orange-50 transition-colors duration-200 group border-t border-gray-100'
                         >
-                          <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth='2'
-                            d='M12 4v16m8-8H4'
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className='font-semibold text-gray-800'>
-                          Create Recipe
-                        </p>
-                        <p className='text-sm text-gray-600'>
-                          Share your creation
-                        </p>
-                      </div>
-                    </Link>
+                          <div className='w-10 h-10 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors'>
+                            <svg
+                              className='w-5 h-5 text-green-600'
+                              fill='none'
+                              stroke='currentColor'
+                              viewBox='0 0 24 24'
+                            >
+                              <path
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                strokeWidth='2'
+                                d='M12 4v16m8-8H4'
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className='font-semibold text-gray-800'>
+                              Create Recipe
+                            </p>
+                            <p className='text-sm text-gray-600'>
+                              Share your creation
+                            </p>
+                          </div>
+                        </Link>
 
-                    <Link
-                      href={`/userProfile/${currentUserId}`}
-                      onClick={closeMenus}
-                      className='flex items-center space-x-3 px-5 py-3 hover:bg-orange-50 transition-colors duration-200 group border-t border-gray-100'
-                    >
-                      <div className='w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center group-hover:bg-purple-200 transition-colors'>
-                        <svg
-                          className='w-5 h-5 text-purple-600'
-                          fill='none'
-                          stroke='currentColor'
-                          viewBox='0 0 24 24'
+                        <Link
+                          href={`/userProfile/${currentUserId}`}
+                          onClick={closeMenus}
+                          className='flex items-center space-x-3 px-5 py-3 hover:bg-orange-50 transition-colors duration-200 group border-t border-gray-100'
                         >
-                          <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth='2'
-                            d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className='font-semibold text-gray-800'>
-                          Your Recipes
-                        </p>
-                        <p className='text-sm text-gray-600'>
-                          View your collection
-                        </p>
-                      </div>
-                    </Link>
+                          <div className='w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center group-hover:bg-purple-200 transition-colors'>
+                            <svg
+                              className='w-5 h-5 text-purple-600'
+                              fill='none'
+                              stroke='currentColor'
+                              viewBox='0 0 24 24'
+                            >
+                              <path
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                strokeWidth='2'
+                                d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className='font-semibold text-gray-800'>
+                              Your Recipes
+                            </p>
+                            <p className='text-sm text-gray-600'>
+                              View your collection
+                            </p>
+                          </div>
+                        </Link>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -311,47 +305,55 @@ export default function Navbar({ session }: { session: Session | null }) {
               <span className='font-medium text-gray-800'>Explore Recipes</span>
             </Link>
 
-            <Link
-              href='/createRecipe'
-              onClick={closeMenus}
-              className='flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-50 transition-colors'
-            >
-              <svg
-                className='w-5 h-5 text-green-600'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M12 4v16m8-8H4'
-                />
-              </svg>
-              <span className='font-medium text-gray-800'>Create Recipe</span>
-            </Link>
+            {currentUserId && (
+              <>
+                <Link
+                  href='/createRecipe'
+                  onClick={closeMenus}
+                  className='flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-50 transition-colors'
+                >
+                  <svg
+                    className='w-5 h-5 text-green-600'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='2'
+                      d='M12 4v16m8-8H4'
+                    />
+                  </svg>
+                  <span className='font-medium text-gray-800'>
+                    Create Recipe
+                  </span>
+                </Link>
 
-            <Link
-              href={`/userProfile/${currentUserId}`}
-              onClick={closeMenus}
-              className='flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-50 transition-colors'
-            >
-              <svg
-                className='w-5 h-5 text-purple-600'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
-                />
-              </svg>
-              <span className='font-medium text-gray-800'>Your Recipes</span>
-            </Link>
+                <Link
+                  href={`/userProfile/${currentUserId}`}
+                  onClick={closeMenus}
+                  className='flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-50 transition-colors'
+                >
+                  <svg
+                    className='w-5 h-5 text-purple-600'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='2'
+                      d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+                    />
+                  </svg>
+                  <span className='font-medium text-gray-800'>
+                    Your Recipes
+                  </span>
+                </Link>
+              </>
+            )}
 
             <div className='border-t border-gray-100 pt-3'>
               {session ? (

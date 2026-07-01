@@ -501,7 +501,9 @@ export default function CreateRecipeForm() {
                             {ingredient}
                           </span>
                           <button
+                            type='button'
                             onClick={() => deleteIngredient(index)}
+                            aria-label={`Remove ingredient: ${ingredient}`}
                             className='text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-all duration-200'
                           >
                             <FaTrashAlt className='w-4 h-4' />
@@ -585,7 +587,9 @@ export default function CreateRecipeForm() {
                             {step}
                           </span>
                           <button
+                            type='button'
                             onClick={() => deleteStep(index)}
+                            aria-label={`Remove step ${index + 1}`}
                             className='text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-all duration-200'
                           >
                             <FaTrashAlt className='w-4 h-4' />

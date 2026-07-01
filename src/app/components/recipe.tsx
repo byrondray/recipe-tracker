@@ -13,6 +13,7 @@ export const Recipe = ({
   imageUrl,
   userId,
   onDeleted,
+  showDeleteButton = false,
 }: {
   id: string;
   title: string;
@@ -20,9 +21,11 @@ export const Recipe = ({
   userId: string;
   imageUrl?: string;
   onDeleted?: (id: string) => void;
+  showDeleteButton?: boolean;
 }) => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const router = useRouter();
@@ -70,7 +73,7 @@ export const Recipe = ({
     <div className='group relative bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl'>
       {/* Image Container */}
       <div className='relative h-56 sm:h-64 overflow-hidden bg-gray-100'>
-        {imageUrl ? (
+        {imageUrl && !imageError ? (
           <>
             {imageLoading && (
               <div className='absolute inset-0 flex items-center justify-center'>
@@ -83,6 +86,10 @@ export const Recipe = ({
               fill
               sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
               onLoad={() => setImageLoading(false)}
+              onError={() => {
+                setImageLoading(false);
+                setImageError(true);
+              }}
               className={`object-cover transition-all duration-500 group-hover:scale-110 ${
                 imageLoading ? 'opacity-0' : 'opacity-100'
               }`}
@@ -154,7 +161,7 @@ export const Recipe = ({
             </button>
           )}
 
-          {currentUserId === userId && (
+          {showDeleteButton && currentUserId === userId && (
             <button
               onClick={handleDeleteClick}
               disabled={deleting}

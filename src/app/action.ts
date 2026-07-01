@@ -33,8 +33,6 @@ export async function filterRecipeByCategoryOrIngredient(userInput: string) {
         )
       );
 
-    console.log('filteredRecipes:', filteredRecipes);
-
     return { success: { recipes: filteredRecipes } };
   } catch (error) {
     console.error('Error filtering recipes:', error);

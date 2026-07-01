@@ -31,6 +31,7 @@ export function DeleteConfirmModal({
   useEffect(() => {
     if (!open) return;
 
+    const triggerElement = document.activeElement as HTMLElement | null;
     cancelButtonRef.current?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,6 +65,7 @@ export function DeleteConfirmModal({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
+      triggerElement?.focus();
     };
   }, [open, loading, onCancel]);
 

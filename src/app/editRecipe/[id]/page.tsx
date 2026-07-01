@@ -175,7 +175,6 @@ export default function EditRecipeForm() {
 
         const uploadUrl = signedUrl.success?.url;
         if (uploadUrl) {
-          console.log('Uploading file:', file);
           const uploadResponse = await fetch(uploadUrl, {
             method: 'PUT',
             body: file,
@@ -189,7 +188,6 @@ export default function EditRecipeForm() {
           }
 
           mediaUrl = `${process.env.NEXT_PUBLIC_AWS_BUCKET_URL}/${signedUrl.success?.fileName}`;
-          console.log('Image successfully uploaded:', mediaUrl);
 
           setImageDeleted(false);
         } else {
@@ -222,7 +220,6 @@ export default function EditRecipeForm() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    console.log('file', file);
     if (file) {
       setImagePreview(URL.createObjectURL(file));
       setMimeType(file.type);
@@ -473,13 +470,14 @@ export default function EditRecipeForm() {
                   <button
                     type='button'
                     onClick={deleteCurrentImage}
+                    aria-label='Remove image'
                     className='absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110'
                   >
                     <FaTrashAlt className='w-4 h-4' />
                   </button>
                   <div className='absolute top-4 left-4'>
                     <div className='bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium'>
-                      Current Image
+                      {newFile ? 'New Image' : 'Current Image'}
                     </div>
                   </div>
                 </div>
@@ -600,7 +598,9 @@ export default function EditRecipeForm() {
                             {ingredient}
                           </span>
                           <button
+                            type='button'
                             onClick={() => deleteIngredient(index)}
+                            aria-label={`Remove ingredient: ${ingredient}`}
                             className='text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-all duration-200'
                           >
                             <FaTrashAlt className='w-4 h-4' />
@@ -684,7 +684,9 @@ export default function EditRecipeForm() {
                             {step}
                           </span>
                           <button
+                            type='button'
                             onClick={() => deleteStep(index)}
+                            aria-label={`Remove step ${index + 1}`}
                             className='text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-all duration-200'
                           >
                             <FaTrashAlt className='w-4 h-4' />

@@ -33,7 +33,10 @@ export function Pagination({
   };
 
   return (
-    <div className='flex items-center justify-center gap-2 mt-12'>
+    <nav
+      aria-label='Recipe pagination'
+      className='flex items-center justify-center gap-2 mt-12'
+    >
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -67,6 +70,8 @@ export function Pagination({
           <button
             key={page}
             onClick={() => onPageChange(page)}
+            aria-current={page === currentPage ? 'page' : undefined}
+            aria-label={`Page ${page}`}
             className={`w-10 h-10 flex items-center justify-center rounded-full font-medium shadow-md transition-all duration-200 ${
               page === currentPage
                 ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg scale-110'
@@ -98,6 +103,6 @@ export function Pagination({
           />
         </svg>
       </button>
-    </div>
+    </nav>
   );
 }

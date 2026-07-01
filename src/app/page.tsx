@@ -179,11 +179,16 @@ export default function HomePage() {
       <div className='container mx-auto px-4 -mt-8 relative z-10'>
         <div className='bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-3xl mx-auto transform transition-all duration-300 hover:shadow-3xl'>
           <div className='relative'>
+            <label htmlFor='recipe-search' className='sr-only'>
+              Search recipes by category or ingredient
+            </label>
             <input
+              id='recipe-search'
               type='text'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder='Search by category or ingredient...'
+              aria-busy={isSearching}
               className='w-full px-6 py-4 pr-12 border-2 border-gray-200 rounded-full text-gray-700 placeholder-gray-400 focus:border-orange-400 focus:outline-none transition-all duration-200'
             />
             {isSearching ? (
@@ -264,11 +269,6 @@ export default function HomePage() {
                     category={recipe.category}
                     imageUrl={recipe.imageUrl}
                     userId={recipe.userId}
-                    onDeleted={(deletedId) =>
-                      setRecipes((prev) =>
-                        prev.filter((r) => r.id !== deletedId)
-                      )
-                    }
                   />
                 </div>
               ))}

@@ -45,8 +45,6 @@ export async function getSignedUrlForExistingFile(
   const session = await auth();
   if (!session) return { error: 'Not authenticated' };
 
-  console.log(fileName, 'fileName');
-
   if (!acceptedImageTypes.includes(type)) {
     return { error: 'You can only upload images.' };
   }
@@ -56,8 +54,6 @@ export async function getSignedUrlForExistingFile(
   }
 
   const finalFileName = fileName;
-
-  console.log('Final file name being used:', finalFileName);
 
   if (!finalFileName || typeof finalFileName !== 'string') {
     throw new Error('File name is invalid');
@@ -94,10 +90,23 @@ export async function updateRecipe(
     if (!session) {
       throw new Error('User is not authenticated.');
     }
-    console.log('Authenticated user:', session.userId);
 
     if (fileName === null || fileName.trim() === '') {
       throw new Error('FileName cannot be null or empty.');
+    }
+
+    const existingRecipe = await db
+      .select()
+      .from(recipeSchema)
+      .where(eq(recipeSchema.id, id))
+      .limit(1);
+
+    if (existingRecipe.length === 0) {
+      throw new Error('Recipe not found.');
+    }
+
+    if (session.userId !== existingRecipe[0].userId) {
+      throw new Error('You are not authorized to update this recipe.');
     }
 
     const recipe = await db
@@ -106,30 +115,18 @@ export async function updateRecipe(
       .where(eq(recipeSchema.id, id))
       .returning();
 
-    if (recipe.length === 0) {
-      throw new Error('Recipe not found.');
-    }
-
-    if (session?.userId !== recipe[0].userId) {
-      throw new Error('You are not authorized to update this recipe.');
-    }
-
     const mediaId = recipe[0].media;
     let url = null;
 
     if (fileName && mimeType) {
       url = `${process.env.NEXT_PUBLIC_AWS_BUCKET_URL}/${fileName}`;
-      console.log('Generated S3 URL:', url);
 
       if (mediaId) {
-        console.log(`Updating existing media record with ID: ${mediaId}`);
-        const updatedMedia = await db
+        await db
           .update(mediaSchema)
           .set({ url, type: mimeType })
           .where(eq(mediaSchema.id, mediaId))
           .returning();
-
-        console.log('Updated media:', updatedMedia);
       } else {
         const existingMedia = await db
           .select()
@@ -138,14 +135,12 @@ export async function updateRecipe(
           .limit(1);
 
         if (existingMedia.length > 0) {
-          console.log('Linking to existing media record by fileName.');
           await db
             .update(recipeSchema)
             .set({ media: existingMedia[0].id })
             .where(eq(recipeSchema.id, id))
             .returning();
         } else {
-          console.log('Inserting new media record.');
           const newMedia = await db
             .insert(mediaSchema)
             .values({
@@ -157,8 +152,6 @@ export async function updateRecipe(
             })
             .returning();
 
-          console.log('New media inserted:', newMedia);
-
           await db
             .update(recipeSchema)
             .set({ media: newMedia[0].id })
@@ -167,7 +160,6 @@ export async function updateRecipe(
         }
       }
     } else if (!fileName && mediaId) {
-      console.log('No image file provided. Removing existing media.');
       await db
         .update(recipeSchema)
         .set({ media: null })
