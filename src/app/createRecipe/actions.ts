@@ -33,8 +33,12 @@ const acceptedTypes = [
 
 const maxFileSize = 1024 * 1024 * 10;
 
-export const generateFileName = (bytes = 32) =>
+const generateFileNameSync = (bytes = 32) =>
   crypto.randomBytes(bytes).toString('hex');
+
+export async function generateFileName(bytes = 32) {
+  return generateFileNameSync(bytes);
+}
 
 export const computeSha256 = async (base64Data: string): Promise<string> => {
   const buffer = Buffer.from(base64Data.split(',')[1], 'base64');
@@ -52,20 +56,7 @@ export async function getSignedUrl(type: string, size: number) {
 
   if (size > maxFileSize) return { error: 'File is too large.' };
 
-  const fileName = generateFileName();
-
-  console.log('DEBUG getSignedUrl', {
-    bucket: process.env.MY_AWS_BUCKET_NAME,
-    bucketType: typeof process.env.MY_AWS_BUCKET_NAME,
-    fileName,
-    fileNameType: typeof fileName,
-    type,
-    typeType: typeof type,
-    size,
-    sizeType: typeof size,
-    userId: session.userId,
-    userIdType: typeof session.userId,
-  });
+  const fileName = generateFileNameSync();
 
   const putObjectCommand = new PutObjectCommand({
     Bucket: process.env.MY_AWS_BUCKET_NAME,
