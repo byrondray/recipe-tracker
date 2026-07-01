@@ -476,7 +476,7 @@ export default function EditRecipeForm() {
                     <FaTrashAlt className='w-4 h-4' />
                   </button>
                   <div className='absolute top-4 left-4'>
-                    <div className='bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium'>
+                    <div className='bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-md'>
                       {newFile ? 'New Image' : 'Current Image'}
                     </div>
                   </div>

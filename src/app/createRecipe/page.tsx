@@ -379,7 +379,7 @@ export default function CreateRecipeForm() {
                     className='object-cover rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-105'
                   />
                   <div className='absolute top-4 right-4'>
-                    <div className='bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium'>
+                    <div className='bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-md'>
                       Preview
                     </div>
                   </div>
@@ -461,14 +461,14 @@ export default function CreateRecipeForm() {
                       addIngredient();
                     }
                   }}
-                  className='flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:border-green-400 focus:outline-none transition-all duration-200 shadow-sm'
+                  className='flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:border-orange-400 focus:outline-none transition-all duration-200 shadow-sm'
                   type='text'
                   placeholder='Enter an ingredient...'
                 />
                 <button
                   type='button'
                   onClick={addIngredient}
-                  className='bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-xl font-medium hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
+                  className='bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
                 >
                   Add
                 </button>
@@ -501,7 +501,7 @@ export default function CreateRecipeForm() {
                           className='flex justify-between items-center p-3 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200'
                         >
                           <span className='text-gray-700'>
-                            <span className='font-semibold text-green-600'>
+                            <span className='font-semibold text-orange-600'>
                               {index + 1}.
                             </span>{' '}
                             {ingredient}
@@ -553,14 +553,14 @@ export default function CreateRecipeForm() {
                       addStep();
                     }
                   }}
-                  className='flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:border-blue-400 focus:outline-none transition-all duration-200 shadow-sm'
+                  className='flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:border-orange-400 focus:outline-none transition-all duration-200 shadow-sm'
                   type='text'
                   placeholder='Describe the next step...'
                 />
                 <button
                   type='button'
                   onClick={addStep}
-                  className='bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
+                  className='bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
                 >
                   Add
                 </button>
@@ -593,7 +593,7 @@ export default function CreateRecipeForm() {
                           className='flex justify-between items-center p-3 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200'
                         >
                           <span className='text-gray-700'>
-                            <span className='font-semibold text-blue-600'>
+                            <span className='font-semibold text-orange-600'>
                               {index + 1}.
                             </span>{' '}
                             {step}

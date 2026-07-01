@@ -47,6 +47,14 @@ export const Recipe = ({
     router.push(`/recipe/${id}`);
   };
 
+  const handleCardKeyDown = (e: React.KeyboardEvent) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      router.push(`/recipe/${id}`);
+    }
+  };
+
   const handleEditClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -73,7 +81,11 @@ export const Recipe = ({
   return (
     <div
       onClick={handleClick}
-      className='group relative bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer'
+      onKeyDown={handleCardKeyDown}
+      role='link'
+      tabIndex={0}
+      aria-label={`View recipe: ${title}`}
+      className='group relative bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-orange-300'
     >
       {/* Image Container */}
       <div className='relative h-56 sm:h-64 overflow-hidden bg-gray-100'>

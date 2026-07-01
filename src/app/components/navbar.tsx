@@ -272,6 +272,8 @@ export default function Navbar({ session }: { session: Session | null }) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-expanded={isMobileMenuOpen}
+              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
               className='md:hidden p-2 rounded-lg hover:bg-orange-50 transition-colors'
             >
               <svg
