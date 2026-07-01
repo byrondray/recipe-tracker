@@ -91,6 +91,7 @@ export const authenticators = pgTable(
   },
   (authenticator) => ({
     compositePK: primaryKey({
+      name: 'authenticator_userId_credentialID_pk',
       columns: [authenticator.userId, authenticator.credentialID],
     }),
   })
