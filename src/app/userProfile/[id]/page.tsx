@@ -8,6 +8,8 @@ import { Recipe } from '../../components/recipe';
 import { getUserData } from './action';
 import { Spinner } from '@/components/ui/spinner';
 import { User } from '@/db/schema/schema';
+import { usePageTitle } from '@/app/components/usePageTitle';
+import { UserProfilePageSkeleton } from '@/app/components/skeletons';
 
 interface Recipe {
   id: string;
@@ -25,7 +27,7 @@ export default function UserRecipesPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const router = useRouter();
 
-  console.log(recipes, 'recipes');
+  usePageTitle('My Profile');
 
   useEffect(() => {
     const fetchUserAndRecipes = async () => {
@@ -64,16 +66,7 @@ export default function UserRecipesPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className='min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent'></div>
-          <p className='mt-4 text-lg text-gray-600 animate-pulse'>
-            Loading profile...
-          </p>
-        </div>
-      </div>
-    );
+    return <UserProfilePageSkeleton />;
   }
 
   if (error) {

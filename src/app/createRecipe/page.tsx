@@ -12,6 +12,7 @@ import {
   getCategories,
 } from './actions';
 import { useRouter } from 'next/navigation';
+import { usePageTitle } from '@/app/components/usePageTitle';
 
 interface Category {
   id: string;
@@ -26,6 +27,8 @@ interface FormData {
 }
 
 export default function CreateRecipeForm() {
+  usePageTitle('Create Recipe');
+
   const {
     register,
     handleSubmit,

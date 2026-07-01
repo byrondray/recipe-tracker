@@ -10,6 +10,8 @@ import { Recipe } from '@/db/schema/schema';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { ShareButton } from '@/app/components/shareButton';
+import { usePageTitle } from '@/app/components/usePageTitle';
+import { RecipeDetailPageSkeleton } from '@/app/components/skeletons';
 
 export default function RecipePage() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -22,6 +24,8 @@ export default function RecipePage() {
 
   const params = useParams();
   const router = useRouter();
+
+  usePageTitle(recipe ? recipe.title : 'Recipe');
 
   const handleDelete = async () => {
     if (!recipe) return;
@@ -68,16 +72,7 @@ export default function RecipePage() {
   }, [params.id]);
 
   if (loading) {
-    return (
-      <div className='min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent'></div>
-          <p className='mt-4 text-lg text-gray-600 animate-pulse'>
-            Loading recipe details...
-          </p>
-        </div>
-      </div>
-    );
+    return <RecipeDetailPageSkeleton />;
   }
 
   if (error) {

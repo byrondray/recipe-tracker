@@ -15,6 +15,8 @@ import { getCategories, generateFileName } from '@/app/createRecipe/actions';
 import { getRecipe } from '@/app/recipe/[id]/action';
 import { getCurrentUserData } from '@/app/recipe/[id]/action';
 import { Spinner } from '@/components/ui/spinner';
+import { usePageTitle } from '@/app/components/usePageTitle';
+import { RecipeFormPageSkeleton } from '@/app/components/skeletons';
 
 interface Category {
   id: string;
@@ -56,11 +58,14 @@ export default function EditRecipeForm() {
   const [generatedFileName, setGeneratedFileName] = useState<string | null>(
     null
   );
+  const [recipeTitle, setRecipeTitle] = useState<string | null>(null);
 
   const params = useParams();
   const router = useRouter();
 
   const recipeId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  usePageTitle(recipeTitle ? `Edit ${recipeTitle}` : 'Edit Recipe');
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -90,6 +95,7 @@ export default function EditRecipeForm() {
 
           const generatedFileName = await generateFileName();
           setGeneratedFileName(generatedFileName);
+          setRecipeTitle(recipe.title);
           setValue('recipeName', recipe.title);
           setValue('categoryId', recipe.category);
           setIngredients(
@@ -275,16 +281,7 @@ export default function EditRecipeForm() {
   };
 
   if (pageLoading) {
-    return (
-      <div className='min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent'></div>
-          <p className='mt-4 text-lg text-gray-600 animate-pulse'>
-            Loading recipe...
-          </p>
-        </div>
-      </div>
-    );
+    return <RecipeFormPageSkeleton />;
   }
 
   return (
