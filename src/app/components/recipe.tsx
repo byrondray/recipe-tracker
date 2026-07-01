@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { getCurrentUserData, deleteRecipe } from '../recipe/[id]/action';
 import { useEffect, useState } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
+import { DeleteConfirmModal } from './deleteConfirmModal';
 
 export const Recipe = ({
   id,
@@ -23,6 +24,7 @@ export const Recipe = ({
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -47,18 +49,17 @@ export const Recipe = ({
     router.push(`/editRecipe/${id}`);
   };
 
-  const handleDeleteClick = async (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setShowDeleteModal(true);
+  };
 
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this recipe? This cannot be undone.'
-    );
-    if (!confirmed) return;
-
+  const handleConfirmDelete = async () => {
     setDeleting(true);
     const result = await deleteRecipe(id);
     setDeleting(false);
+    setShowDeleteModal(false);
 
     if (result.success) {
       onDeleted?.(id);
@@ -168,6 +169,14 @@ export const Recipe = ({
 
       {/* Hover Effect Border */}
       <div className='absolute inset-0 border-2 border-orange-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none'></div>
+
+      <DeleteConfirmModal
+        open={showDeleteModal}
+        title={`Delete "${title}"?`}
+        loading={deleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 };

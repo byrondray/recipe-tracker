@@ -12,6 +12,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { ShareButton } from '@/app/components/shareButton';
 import { usePageTitle } from '@/app/components/usePageTitle';
 import { RecipeDetailPageSkeleton } from '@/app/components/skeletons';
+import { DeleteConfirmModal } from '@/app/components/deleteConfirmModal';
 
 export default function RecipePage() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -21,6 +22,7 @@ export default function RecipePage() {
   const [category, setCategory] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const params = useParams();
   const router = useRouter();
@@ -29,14 +31,11 @@ export default function RecipePage() {
 
   const handleDelete = async () => {
     if (!recipe) return;
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this recipe? This cannot be undone.'
-    );
-    if (!confirmed) return;
 
     setDeleting(true);
     const result = await deleteRecipe(recipe.id);
     setDeleting(false);
+    setShowDeleteModal(false);
 
     if (result.success) {
       router.push('/');
@@ -175,7 +174,7 @@ export default function RecipePage() {
                 )}
                 {currentUserId === recipe.userId && (
                   <button
-                    onClick={handleDelete}
+                    onClick={() => setShowDeleteModal(true)}
                     disabled={deleting}
                     className='bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full font-medium hover:bg-red-500/60 transition-all duration-200 shadow-lg flex items-center gap-2 disabled:opacity-50'
                   >
@@ -349,6 +348,14 @@ export default function RecipePage() {
           animation: fade-in-down 0.6s ease-out;
         }
       `}</style>
+
+      <DeleteConfirmModal
+        open={showDeleteModal}
+        title={`Delete "${recipe.title}"?`}
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }
