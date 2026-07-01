@@ -260,6 +260,7 @@ export default function UserRecipesPage() {
                     category={recipe.category}
                     imageUrl={recipe.imageUrl}
                     userId={recipe.userId}
+                    currentUserId={userId}
                     showDeleteButton
                     onDeleted={(deletedId) =>
                       setRecipes((prev) =>

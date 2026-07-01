@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { getCurrentUserData, deleteRecipe } from '../recipe/[id]/action';
-import { useEffect, useState } from 'react';
+import { deleteRecipe } from '../recipe/[id]/action';
+import { useState } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { DeleteConfirmModal } from './deleteConfirmModal';
 
@@ -12,6 +12,7 @@ export const Recipe = ({
   category,
   imageUrl,
   userId,
+  currentUserId = null,
   onDeleted,
   showDeleteButton = false,
 }: {
@@ -20,26 +21,15 @@ export const Recipe = ({
   category: string;
   userId: string;
   imageUrl?: string;
+  currentUserId?: string | null;
   onDeleted?: (id: string) => void;
   showDeleteButton?: boolean;
 }) => {
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const currentUser = await getCurrentUserData();
-      if (currentUser.success?.session?.user) {
-        setCurrentUserId(currentUser.success.session.user.id);
-      }
-    };
-
-    fetchUserData();
-  }, []);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();

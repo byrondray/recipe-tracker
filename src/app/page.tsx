@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { getRecipes, filterRecipeByCategoryOrIngredient } from './action';
+import { getCurrentUserData } from './recipe/[id]/action';
 import { Recipe } from './components/recipe';
 import { Pagination } from './components/pagination';
 import { HomePageSkeleton } from './components/skeletons';
@@ -29,6 +30,18 @@ export default function HomePage() {
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const currentUser = await getCurrentUserData();
+      if (currentUser.success?.session?.user) {
+        setCurrentUserId(currentUser.success.session.user.id);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -254,6 +267,7 @@ export default function HomePage() {
                     category={recipe.category}
                     imageUrl={recipe.imageUrl}
                     userId={recipe.userId}
+                    currentUserId={currentUserId}
                   />
                 </div>
               ))}
