@@ -65,7 +65,7 @@ export async function getSignedUrlForExistingFile(
     ContentType: type,
     ContentLength: size,
     Metadata: {
-      userId: session.userId,
+      userId: session.user.id,
     },
   });
 
@@ -105,7 +105,7 @@ export async function updateRecipe(
       throw new Error('Recipe not found.');
     }
 
-    if (session.userId !== existingRecipe[0].userId) {
+    if (session.user.id !== existingRecipe[0].userId) {
       throw new Error('You are not authorized to update this recipe.');
     }
 
@@ -134,7 +134,10 @@ export async function updateRecipe(
           .where(eq(mediaSchema.id, fileName))
           .limit(1);
 
-        if (existingMedia.length > 0) {
+        if (
+          existingMedia.length > 0 &&
+          existingMedia[0].userId === session.user.id
+        ) {
           await db
             .update(recipeSchema)
             .set({ media: existingMedia[0].id })
@@ -178,6 +181,11 @@ export async function updateRecipe(
 
 export async function deleteMedia(id: string) {
   try {
+    const session = await auth();
+    if (!session) {
+      return { error: 'Not authenticated' };
+    }
+
     const mediaToDelete = await db
       .select()
       .from(mediaSchema)
@@ -186,6 +194,10 @@ export async function deleteMedia(id: string) {
 
     if (mediaToDelete.length === 0) {
       return { error: 'Media not found' };
+    }
+
+    if (mediaToDelete[0].userId !== session.user.id) {
+      return { error: 'You are not authorized to delete this media.' };
     }
 
     const mediaUrl = mediaToDelete[0].url;

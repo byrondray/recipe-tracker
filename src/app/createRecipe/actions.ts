@@ -64,7 +64,7 @@ export async function getSignedUrl(type: string, size: number) {
     ContentType: type,
     ContentLength: size,
     Metadata: {
-      userId: session.userId,
+      userId: session.user.id,
     },
   });
 
@@ -86,9 +86,13 @@ export async function createRecipe(recipe: InsertRecipeWithoutUserId) {
       return { error: 'Ingredients are required' };
     }
 
+    if (!session?.user?.id) {
+      return { error: 'Not authenticated' };
+    }
+
     const result = await db
       .insert(recipeSchema)
-      .values({ ...recipe, userId: session?.userId ?? '' })
+      .values({ ...recipe, userId: session.user.id })
       .returning();
     return { success: { recipe: result } };
   } catch (error) {
@@ -102,7 +106,10 @@ type InsertMediaWithoutUserId = Omit<InsertMedia, 'userId'>;
 export async function createMedia(m: InsertMediaWithoutUserId) {
   try {
     const session = await auth();
-    const medias: Media = { ...m, userId: session?.userId ?? '' };
+    if (!session?.user?.id) {
+      return { error: 'Not authenticated' };
+    }
+    const medias: Media = { ...m, userId: session.user.id };
     const result = await db.insert(media).values(medias).returning();
     return { success: { media: result } };
   } catch (error) {

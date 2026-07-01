@@ -52,7 +52,7 @@ export async function deleteRecipe(id: string) {
       return { error: 'Recipe not found' };
     }
 
-    if (existing[0].userId !== session.userId) {
+    if (existing[0].userId !== session.user.id) {
       return { error: 'You are not authorized to delete this recipe.' };
     }
 

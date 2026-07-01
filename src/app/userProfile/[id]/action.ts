@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 export async function getRecipesForUser() {
   try {
     const session = await auth();
-    const userId = session?.userId;
+    const userId = session?.user?.id;
 
     if (!userId) {
       return { error: 'No user ID found' };
@@ -31,7 +31,7 @@ export async function getRecipesForUser() {
 export async function getUserData() {
   try {
     const session = await auth();
-    const userId = session?.userId;
+    const userId = session?.user?.id;
 
     if (!userId) {
       return { error: 'No user ID found' };
