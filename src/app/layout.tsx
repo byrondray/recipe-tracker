@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Navbar from './components/navbar';
@@ -9,6 +9,17 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'CookBook+',
   description: 'A cookbook to find new recipes and keep track of your own',
+  appleWebApp: {
+    title: 'CookBook+',
+    statusBarStyle: 'black-translucent',
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#f97316',
+  viewportFit: 'cover',
 };
 
 export interface CustomSession {

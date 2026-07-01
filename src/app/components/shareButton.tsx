@@ -3,7 +3,13 @@
 import { useState } from 'react';
 import { type Recipe } from '@/db/schema/schema';
 
-export const ShareButton = ({ recipe }: { recipe: Recipe }) => {
+export const ShareButton = ({
+  recipe,
+  className = '',
+}: {
+  recipe: Recipe;
+  className?: string;
+}) => {
   const [copied, setCopied] = useState(false);
 
   const shareRecipe = async () => {
@@ -31,7 +37,7 @@ export const ShareButton = ({ recipe }: { recipe: Recipe }) => {
   return (
     <button
       onClick={shareRecipe}
-      className='bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full font-medium hover:bg-white/30 transition-all duration-200 shadow-lg flex items-center gap-2'
+      className={`bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full font-medium hover:bg-white/30 transition-all duration-200 shadow-lg flex items-center gap-2 ${className}`}
     >
       <svg
         className='w-5 h-5'

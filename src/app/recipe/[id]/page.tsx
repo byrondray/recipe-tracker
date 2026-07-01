@@ -150,11 +150,11 @@ export default function RecipePage() {
                   </div>
                 )}
               </div>
-              <div className='flex gap-3'>
+              <div className='flex flex-wrap gap-3 w-full md:w-auto'>
                 {currentUserId === recipe.userId && (
                   <button
                     onClick={() => router.push(`/editRecipe/${recipe.id}`)}
-                    className='bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full font-medium hover:bg-white/30 transition-all duration-200 shadow-lg flex items-center gap-2'
+                    className='flex-1 md:flex-none justify-center bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full font-medium hover:bg-white/30 transition-all duration-200 shadow-lg flex items-center gap-2'
                   >
                     <svg
                       className='w-5 h-5'
@@ -176,13 +176,16 @@ export default function RecipePage() {
                   <button
                     onClick={() => setShowDeleteModal(true)}
                     disabled={deleting}
-                    className='bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full font-medium hover:bg-red-500/60 transition-all duration-200 shadow-lg flex items-center gap-2 disabled:opacity-50'
+                    className='flex-1 md:flex-none justify-center bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full font-medium hover:bg-red-500/60 transition-all duration-200 shadow-lg flex items-center gap-2 disabled:opacity-50'
                   >
                     <FaTrashAlt className='w-4 h-4' />
                     {deleting ? 'Deleting...' : 'Delete Recipe'}
                   </button>
                 )}
-                <ShareButton recipe={recipe} />
+                <ShareButton
+                  recipe={recipe}
+                  className='flex-1 md:flex-none justify-center'
+                />
               </div>
             </div>
           </div>

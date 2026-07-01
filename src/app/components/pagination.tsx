@@ -35,7 +35,7 @@ export function Pagination({
   return (
     <nav
       aria-label='Recipe pagination'
-      className='flex items-center justify-center gap-2 mt-12'
+      className='flex items-center justify-center flex-wrap gap-2 mt-12'
     >
       <button
         onClick={() => onPageChange(currentPage - 1)}
