@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getRecipes, filterRecipeByCategoryOrIngredient } from './action';
+import { RESULTS_PER_PAGE } from './constants';
 import { getCurrentUserData } from './recipe/[id]/action';
 import { Recipe } from './components/recipe';
 import { Pagination } from './components/pagination';
@@ -17,13 +18,13 @@ interface Recipe {
   imageUrl?: string;
 }
 
-const RESULTS_PER_PAGE = 16;
 const SEARCH_DEBOUNCE_MS = 300;
 
 export default function HomePage() {
   usePageTitle('Home');
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,9 +45,29 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedQuery]);
+
+  useEffect(() => {
     const fetchRecipes = async () => {
+      setIsSearching(true);
       try {
-        const result = await getRecipes();
+        const result =
+          debouncedQuery.trim() === ''
+            ? await getRecipes(currentPage)
+            : await filterRecipeByCategoryOrIngredient(
+                debouncedQuery,
+                currentPage
+              );
+
         if (result.success?.recipes) {
           const formattedRecipes = result.success.recipes.map((r: any) => ({
             id: r.recipe.id,
@@ -56,6 +77,7 @@ export default function HomePage() {
             imageUrl: r.media?.url || undefined,
           }));
           setRecipes(formattedRecipes);
+          setTotal(result.success.total);
         } else {
           setError(result.error || 'Failed to fetch recipes');
         }
@@ -63,73 +85,14 @@ export default function HomePage() {
         setError('Something went wrong while fetching recipes.');
       } finally {
         setLoading(false);
-      }
-    };
-
-    fetchRecipes();
-  }, []);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
-    }, SEARCH_DEBOUNCE_MS);
-
-    return () => clearTimeout(timeout);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    const runSearch = async () => {
-      setIsSearching(true);
-      try {
-        if (debouncedQuery.trim() === '') {
-          const result = await getRecipes();
-          if (result.success?.recipes) {
-            const formattedRecipes = result.success.recipes.map((r: any) => ({
-              id: r.recipe.id,
-              title: r.recipe.title,
-              category: r.category.name,
-              userId: r.recipe.userId,
-              imageUrl: r.media?.url || undefined,
-            }));
-            setRecipes(formattedRecipes);
-          }
-        } else {
-          const result = await filterRecipeByCategoryOrIngredient(
-            debouncedQuery
-          );
-          if (result.success?.recipes) {
-            const formattedRecipes = result.success.recipes.map((r: any) => ({
-              id: r.recipe.id,
-              title: r.recipe.title,
-              category: r.category.name,
-              userId: r.recipe.userId,
-              imageUrl: r.media?.url || undefined,
-            }));
-            setRecipes(formattedRecipes);
-          } else {
-            setError(result.error || 'Failed to fetch filtered recipes');
-          }
-        }
-        setCurrentPage(1);
-      } catch (error) {
-        setError('Error occurred while filtering recipes.');
-      } finally {
         setIsSearching(false);
       }
     };
 
-    if (!loading) {
-      runSearch();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery]);
+    fetchRecipes();
+  }, [debouncedQuery, currentPage]);
 
-  const totalPages = Math.max(1, Math.ceil(recipes.length / RESULTS_PER_PAGE));
-
-  const paginatedRecipes = useMemo(() => {
-    const start = (currentPage - 1) * RESULTS_PER_PAGE;
-    return recipes.slice(start, start + RESULTS_PER_PAGE);
-  }, [recipes, currentPage]);
+  const totalPages = Math.max(1, Math.ceil(total / RESULTS_PER_PAGE));
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -255,7 +218,7 @@ export default function HomePage() {
         ) : (
           <>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8'>
-              {paginatedRecipes.map((recipe, index) => (
+              {recipes.map((recipe, index) => (
                 <div
                   key={recipe.id}
                   className='animate-fade-in-up'

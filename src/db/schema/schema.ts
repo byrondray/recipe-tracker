@@ -5,6 +5,7 @@ import {
   text,
   primaryKey,
   integer,
+  index,
 } from 'drizzle-orm/pg-core';
 import type { AdapterAccountType } from 'next-auth/adapters';
 
@@ -44,13 +45,19 @@ export const accounts = pgTable(
   })
 );
 
-export const sessions = pgTable('session', {
-  sessionToken: text('sessionToken').primaryKey(),
-  userId: text('userId')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  expires: timestamp('expires', { mode: 'date' }).notNull(),
-});
+export const sessions = pgTable(
+  'session',
+  {
+    sessionToken: text('sessionToken').primaryKey(),
+    userId: text('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    expires: timestamp('expires', { mode: 'date' }).notNull(),
+  },
+  (session) => ({
+    userIdIdx: index('session_userId_idx').on(session.userId),
+  })
+);
 
 export const verificationTokens = pgTable(
   'verificationToken',
@@ -89,21 +96,28 @@ export const authenticators = pgTable(
   })
 );
 
-export const recipe = pgTable('recipe', {
-  id: text('id').primaryKey().notNull(),
-  title: text('title').notNull(),
-  ingredients: text('ingredients').notNull(),
-  steps: text('steps'),
-  media: text('media').references(() => media.id, { onDelete: 'cascade' }),
-  category: text('category')
-    .references(() => category.id, {
-      onDelete: 'cascade',
-    })
-    .notNull(),
-  userId: text('userId')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-});
+export const recipe = pgTable(
+  'recipe',
+  {
+    id: text('id').primaryKey().notNull(),
+    title: text('title').notNull(),
+    ingredients: text('ingredients').notNull(),
+    steps: text('steps'),
+    media: text('media').references(() => media.id, { onDelete: 'cascade' }),
+    category: text('category')
+      .references(() => category.id, {
+        onDelete: 'cascade',
+      })
+      .notNull(),
+    userId: text('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+  },
+  (recipe) => ({
+    userIdIdx: index('recipe_userId_idx').on(recipe.userId),
+    categoryIdx: index('recipe_category_idx').on(recipe.category),
+  })
+);
 
 export const category = pgTable('category', {
   id: text('id').primaryKey().notNull(),
@@ -113,15 +127,21 @@ export const category = pgTable('category', {
 export type Recipe = typeof recipe.$inferSelect;
 export type InsertRecipe = typeof recipe.$inferInsert;
 
-export const media = pgTable('media', {
-  id: text('id').primaryKey().notNull(),
-  url: text('url').notNull(),
-  type: text('type').notNull(),
-  userId: text('userId')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  createdAt: timestamp('createdAt', { mode: 'date' }).notNull(),
-});
+export const media = pgTable(
+  'media',
+  {
+    id: text('id').primaryKey().notNull(),
+    url: text('url').notNull(),
+    type: text('type').notNull(),
+    userId: text('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('createdAt', { mode: 'date' }).notNull(),
+  },
+  (media) => ({
+    userIdIdx: index('media_userId_idx').on(media.userId),
+  })
+);
 
 export type Media = typeof media.$inferSelect;
 export type InsertMedia = typeof media.$inferInsert;

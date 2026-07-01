@@ -3,8 +3,7 @@
 import { category, media, recipe } from '@/db/schema/schema';
 import { db } from '@/lib/db';
 import { count, eq, ilike, or } from 'drizzle-orm';
-
-export const RESULTS_PER_PAGE = 16;
+import { RESULTS_PER_PAGE } from './constants';
 
 export async function getRecipes(page = 1) {
   try {
