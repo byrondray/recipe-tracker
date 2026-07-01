@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { FaTrashAlt } from 'react-icons/fa';
 import Image from 'next/image';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { getRecipe, getCurrentUserData } from './action';
+import { getRecipe, getCurrentUserData, deleteRecipe } from './action';
 import { Recipe } from '@/db/schema/schema';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -18,9 +18,28 @@ export default function RecipePage() {
   const [media, setMedia] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const params = useParams();
   const router = useRouter();
+
+  const handleDelete = async () => {
+    if (!recipe) return;
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this recipe? This cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    const result = await deleteRecipe(recipe.id);
+    setDeleting(false);
+
+    if (result.success) {
+      router.push('/');
+    } else {
+      setError(result.error || 'Failed to delete recipe');
+    }
+  };
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -157,6 +176,16 @@ export default function RecipePage() {
                       />
                     </svg>
                     Edit Recipe
+                  </button>
+                )}
+                {currentUserId === recipe.userId && (
+                  <button
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className='bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full font-medium hover:bg-red-500/60 transition-all duration-200 shadow-lg flex items-center gap-2 disabled:opacity-50'
+                  >
+                    <FaTrashAlt className='w-4 h-4' />
+                    {deleting ? 'Deleting...' : 'Delete Recipe'}
                   </button>
                 )}
                 <ShareButton recipe={recipe} />

@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { getCurrentUserData } from '../recipe/[id]/action';
+import { getCurrentUserData, deleteRecipe } from '../recipe/[id]/action';
 import { useEffect, useState } from 'react';
+import { FaTrashAlt } from 'react-icons/fa';
 
 export const Recipe = ({
   id,
@@ -10,15 +11,18 @@ export const Recipe = ({
   category,
   imageUrl,
   userId,
+  onDeleted,
 }: {
   id: string;
   title: string;
   category: string;
   userId: string;
   imageUrl?: string;
+  onDeleted?: (id: string) => void;
 }) => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -41,6 +45,24 @@ export const Recipe = ({
     e.preventDefault();
     e.stopPropagation();
     router.push(`/editRecipe/${id}`);
+  };
+
+  const handleDeleteClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this recipe? This cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    const result = await deleteRecipe(id);
+    setDeleting(false);
+
+    if (result.success) {
+      onDeleted?.(id);
+    }
   };
 
   return (
@@ -128,6 +150,17 @@ export const Recipe = ({
                 />
               </svg>
               Edit
+            </button>
+          )}
+
+          {currentUserId === userId && (
+            <button
+              onClick={handleDeleteClick}
+              disabled={deleting}
+              className='bg-red-100 text-red-700 px-4 py-2 rounded-full font-medium hover:bg-red-200 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50'
+            >
+              <FaTrashAlt className='w-4 h-4 inline-block mr-1' />
+              {deleting ? 'Deleting...' : 'Delete'}
             </button>
           )}
         </div>

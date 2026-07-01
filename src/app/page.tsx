@@ -253,6 +253,9 @@ export default function HomePage() {
                   category={recipe.category}
                   imageUrl={recipe.imageUrl}
                   userId={recipe.userId}
+                  onDeleted={(deletedId) =>
+                    setRecipes((prev) => prev.filter((r) => r.id !== deletedId))
+                  }
                 />
               </div>
             ))}
