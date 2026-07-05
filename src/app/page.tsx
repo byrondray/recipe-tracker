@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getRecipes, filterRecipeByCategoryOrIngredient } from './action';
+import { getRecipes, SortOption } from './action';
+import { getCategories } from './createRecipe/actions';
 import { RESULTS_PER_PAGE } from './constants';
 import { getCurrentUserData } from './recipe/[id]/action';
 import { Recipe } from './components/recipe';
@@ -9,6 +10,25 @@ import { Pagination } from './components/pagination';
 import { HomePageSkeleton } from './components/skeletons';
 import { usePageTitle } from './components/usePageTitle';
 import { Spinner } from '@/components/ui/spinner';
+
+interface Category {
+  id: string;
+  name: string;
+}
+
+const MIN_RATING_OPTIONS = [
+  { value: 0, label: 'Any rating' },
+  { value: 4, label: '4 stars & up' },
+  { value: 3, label: '3 stars & up' },
+  { value: 2, label: '2 stars & up' },
+  { value: 1, label: '1 star & up' },
+];
+
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'oldest', label: 'Oldest' },
+  { value: 'topRated', label: 'Top rated' },
+];
 
 interface Recipe {
   id: string;
@@ -32,6 +52,10 @@ export default function HomePage() {
   const [isSearching, setIsSearching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryId, setCategoryId] = useState('');
+  const [minRating, setMinRating] = useState(0);
+  const [sort, setSort] = useState<SortOption>('newest');
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -45,6 +69,17 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      const result = await getCategories();
+      if (result.success?.categories) {
+        setCategories(result.success.categories);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
     const timeout = setTimeout(() => {
       setDebouncedQuery(searchQuery);
     }, SEARCH_DEBOUNCE_MS);
@@ -54,19 +89,19 @@ export default function HomePage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedQuery]);
+  }, [debouncedQuery, categoryId, minRating, sort]);
 
   useEffect(() => {
     const fetchRecipes = async () => {
       setIsSearching(true);
       try {
-        const result =
-          debouncedQuery.trim() === ''
-            ? await getRecipes(currentPage)
-            : await filterRecipeByCategoryOrIngredient(
-                debouncedQuery,
-                currentPage
-              );
+        const result = await getRecipes({
+          page: currentPage,
+          searchQuery: debouncedQuery,
+          categoryId,
+          minRating,
+          sort,
+        });
 
         if (result.success?.recipes) {
           const formattedRecipes = result.success.recipes.map((r: any) => ({
@@ -90,7 +125,7 @@ export default function HomePage() {
     };
 
     fetchRecipes();
-  }, [debouncedQuery, currentPage]);
+  }, [debouncedQuery, currentPage, categoryId, minRating, sort]);
 
   const totalPages = Math.max(1, Math.ceil(total / RESULTS_PER_PAGE));
 
@@ -187,6 +222,63 @@ export default function HomePage() {
                 />
               </svg>
             )}
+          </div>
+
+          <div className='mt-4 flex flex-wrap gap-3'>
+            <div className='flex-1 min-w-[160px]'>
+              <label htmlFor='category-filter' className='sr-only'>
+                Filter by category
+              </label>
+              <select
+                id='category-filter'
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className='w-full px-4 py-2.5 border-2 border-gray-200 rounded-full text-gray-700 bg-white focus:border-orange-400 focus:outline-none transition-all duration-200'
+              >
+                <option value=''>All categories</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className='flex-1 min-w-[160px]'>
+              <label htmlFor='rating-filter' className='sr-only'>
+                Filter by minimum rating
+              </label>
+              <select
+                id='rating-filter'
+                value={minRating}
+                onChange={(e) => setMinRating(Number(e.target.value))}
+                className='w-full px-4 py-2.5 border-2 border-gray-200 rounded-full text-gray-700 bg-white focus:border-orange-400 focus:outline-none transition-all duration-200'
+              >
+                {MIN_RATING_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className='flex-1 min-w-[160px]'>
+              <label htmlFor='sort-filter' className='sr-only'>
+                Sort recipes
+              </label>
+              <select
+                id='sort-filter'
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortOption)}
+                className='w-full px-4 py-2.5 border-2 border-gray-200 rounded-full text-gray-700 bg-white focus:border-orange-400 focus:outline-none transition-all duration-200'
+              >
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </div>

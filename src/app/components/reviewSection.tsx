@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import Image from 'next/image';
 import { StarRating } from './starRating';
@@ -38,14 +38,14 @@ export function ReviewSection({ recipeId, currentUserId }: ReviewSectionProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     const result = await getReviewsForRecipe(recipeId);
     if (result.success) {
       setReviews(result.success.reviews as ReviewWithUser[]);
       setAverage(result.success.average);
       setCount(result.success.count);
     }
-  };
+  }, [recipeId]);
 
   useEffect(() => {
     const load = async () => {
@@ -60,7 +60,7 @@ export function ReviewSection({ recipeId, currentUserId }: ReviewSectionProps) {
       setLoading(false);
     };
     load();
-  }, [recipeId, currentUserId]);
+  }, [recipeId, currentUserId, loadReviews]);
 
   const startEditing = () => {
     setFormRating(myReview?.rating ?? 0);
