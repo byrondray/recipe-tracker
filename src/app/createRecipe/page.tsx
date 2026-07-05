@@ -471,13 +471,22 @@ function CreateRecipeForm() {
             {imagePreview && (
               <div className='mb-6'>
                 <div className='relative group h-64'>
-                  <Image
-                    src={imagePreview}
-                    alt='Recipe Preview'
-                    fill
-                    sizes='(max-width: 768px) 100vw, 50vw'
-                    className='object-cover rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-105'
-                  />
+                  {remoteImageUrl && imagePreview === remoteImageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={imagePreview}
+                      alt='Recipe Preview'
+                      className='absolute inset-0 w-full h-full object-cover rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-105'
+                    />
+                  ) : (
+                    <Image
+                      src={imagePreview}
+                      alt='Recipe Preview'
+                      fill
+                      sizes='(max-width: 768px) 100vw, 50vw'
+                      className='object-cover rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-105'
+                    />
+                  )}
                   <div className='absolute top-4 right-4'>
                     <div className='bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-md'>
                       Preview

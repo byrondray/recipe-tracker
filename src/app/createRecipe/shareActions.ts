@@ -47,7 +47,10 @@ export async function uploadRemoteImageToS3(remoteUrl: string) {
   }
   if (!res.ok) return { error: 'Could not download the shared image.' };
 
-  const contentType = res.headers.get('content-type') ?? '';
+  const contentType = (res.headers.get('content-type') ?? '')
+    .split(';')[0]
+    .trim()
+    .toLowerCase();
   if (!acceptedTypes.includes(contentType)) {
     return { error: 'Shared image is not a supported format.' };
   }
