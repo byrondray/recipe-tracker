@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { usePageTitle } from '@/app/components/usePageTitle';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -93,20 +94,14 @@ export default function DownloadPage() {
       <div className='relative overflow-hidden bg-gradient-to-r from-orange-400 to-red-500 text-white'>
         <div className='absolute inset-0 bg-black opacity-10'></div>
         <div className='relative container mx-auto px-4 py-20 text-center'>
-          <div className='w-20 h-20 mx-auto mb-6 bg-white/20 backdrop-blur rounded-3xl flex items-center justify-center animate-fade-in-down'>
-            <svg
-              className='w-11 h-11 text-white'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth='2'
-                d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-              />
-            </svg>
+          <div className='w-20 h-20 mx-auto mb-6 rounded-3xl overflow-hidden shadow-lg animate-fade-in-down'>
+            <Image
+              src='/icons/icon-192.png'
+              alt='CookBook+ app icon'
+              width={80}
+              height={80}
+              className='w-full h-full object-cover'
+            />
           </div>
           <h1 className='text-4xl md:text-6xl font-heading font-semibold mb-4 animate-fade-in-down'>
             Bring CookBook+ to Your Home Screen
