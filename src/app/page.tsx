@@ -352,7 +352,7 @@ export default function HomePage() {
               {recipes.map((recipe, index) => (
                 <div
                   key={recipe.id}
-                  className='animate-fade-in-up'
+                  className='h-full animate-fade-in-up'
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <Recipe

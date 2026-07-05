@@ -120,10 +120,10 @@ export const Recipe = ({
       role='link'
       tabIndex={0}
       aria-label={`View recipe: ${title}`}
-      className='group relative bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-orange-300'
+      className='group relative h-full flex flex-col bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-orange-300'
     >
       {/* Image Container */}
-      <div className='relative h-56 sm:h-64 overflow-hidden bg-gray-100'>
+      <div className='relative h-56 sm:h-64 shrink-0 overflow-hidden bg-gray-100'>
         {imageUrl && !imageError ? (
           <>
             {imageLoading && (
@@ -195,13 +195,13 @@ export const Recipe = ({
       </div>
 
       {/* Content */}
-      <div className='p-5'>
-        <h3 className='text-xl font-bold text-gray-800 mb-3 line-clamp-2 group-hover:text-orange-600 transition-colors duration-200'>
+      <div className='p-5 flex-1 flex flex-col'>
+        <h3 className='text-xl font-bold text-gray-800 mb-3 line-clamp-2 min-h-[3.5rem] group-hover:text-orange-600 transition-colors duration-200'>
           {title}
         </h3>
 
         {/* Action Buttons */}
-        <div className='flex flex-wrap gap-3'>
+        <div className='flex flex-wrap gap-3 mt-auto'>
           <button
             onClick={handleClick}
             className='flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg'
