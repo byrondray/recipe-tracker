@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { FaTrashAlt } from 'react-icons/fa';
@@ -11,7 +11,11 @@ import {
   createMedia,
   getCategories,
 } from './actions';
-import { useRouter } from 'next/navigation';
+import {
+  extractRecipeFromUrlAction,
+  uploadRemoteImageToS3,
+} from './shareActions';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { usePageTitle } from '@/app/components/usePageTitle';
 
 interface Category {
@@ -26,7 +30,15 @@ interface FormData {
   categoryId: string;
 }
 
-export default function CreateRecipeForm() {
+export default function CreateRecipeFormPage() {
+  return (
+    <Suspense fallback={null}>
+      <CreateRecipeForm />
+    </Suspense>
+  );
+}
+
+function CreateRecipeForm() {
   usePageTitle('Create Recipe');
 
   const {
@@ -38,17 +50,21 @@ export default function CreateRecipeForm() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [remoteImageUrl, setRemoteImageUrl] = useState<string | null>(null);
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [steps, setSteps] = useState<string[]>([]);
   const [ingredientInput, setIngredientInput] = useState('');
   const [stepInput, setStepInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [prefillLoading, setPrefillLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
   const [ingredientError, setIngredientError] = useState<string | null>(null);
   const [stepError, setStepError] = useState<string | null>(null);
   const [categoryError, setCategoryError] = useState<string | null>(null);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -67,6 +83,37 @@ export default function CreateRecipeForm() {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    const sharedUrl = searchParams.get('sharedUrl');
+    const sharedTitle = searchParams.get('sharedTitle');
+    if (!sharedUrl && !sharedTitle) return;
+
+    if (sharedUrl) {
+      setPrefillLoading(true);
+      extractRecipeFromUrlAction(sharedUrl)
+        .then((result) => {
+          if (result.success?.recipe) {
+            const { title, ingredients: sharedIngredients, steps: sharedSteps, imageUrl } =
+              result.success.recipe;
+            setValue('recipeName', title || sharedTitle || sharedUrl);
+            if (sharedIngredients?.length) setIngredients(sharedIngredients);
+            if (sharedSteps?.length) setSteps(sharedSteps);
+            if (imageUrl) {
+              setRemoteImageUrl(imageUrl);
+              setImagePreview(imageUrl);
+            }
+          } else {
+            setValue('recipeName', sharedTitle || sharedUrl);
+          }
+        })
+        .catch(() => setValue('recipeName', sharedTitle || sharedUrl))
+        .finally(() => setPrefillLoading(false));
+    } else if (sharedTitle) {
+      setValue('recipeName', sharedTitle);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     setFormError(null);
     setLoading(true);
@@ -79,48 +126,74 @@ export default function CreateRecipeForm() {
       setCategoryError(null);
     }
 
+    if (!data.recipeImage?.[0] && !remoteImageUrl) {
+      setImageError('Recipe image is required.');
+      setLoading(false);
+      return;
+    } else {
+      setImageError(null);
+    }
+
     try {
-      const signedUrl = await getSignedUrl(
-        data.recipeImage[0].type,
-        data.recipeImage[0].size
-      );
+      let mediaId: string;
 
-      if (signedUrl.error) {
-        setFormError(signedUrl.error);
-        setLoading(false);
-        return;
-      }
+      if (data.recipeImage?.[0]) {
+        const signedUrl = await getSignedUrl(
+          data.recipeImage[0].type,
+          data.recipeImage[0].size
+        );
 
-      const url = signedUrl.success?.url;
+        if (signedUrl.error) {
+          setFormError(signedUrl.error);
+          setLoading(false);
+          return;
+        }
 
-      if (url) {
-        await fetch(url, {
-          method: 'PUT',
-          body: data.recipeImage[0],
-          headers: {
-            'Content-Type': data.recipeImage[0].type,
-          },
-        });
+        const url = signedUrl.success?.url;
+
+        if (url) {
+          await fetch(url, {
+            method: 'PUT',
+            body: data.recipeImage[0],
+            headers: {
+              'Content-Type': data.recipeImage[0].type,
+            },
+          });
+        } else {
+          throw new Error('Failed to get signed URL.');
+        }
+
+        const urlAWS = `${process.env.NEXT_PUBLIC_AWS_BUCKET_URL}/${signedUrl.success?.fileName}`;
+
+        const media = {
+          id: signedUrl.success?.fileName ?? '',
+          url: urlAWS,
+          type: data.recipeImage[0].type,
+          createdAt: new Date(),
+        };
+
+        const mediaResults = await createMedia(media);
+        if (mediaResults.error || !mediaResults.success) {
+          setFormError(mediaResults.error || 'Failed to save image.');
+          setLoading(false);
+          return;
+        }
+        mediaId = mediaResults.success.media[0].id;
       } else {
-        throw new Error('Failed to get signed URL.');
+        const mediaResults = await uploadRemoteImageToS3(remoteImageUrl!);
+        if (mediaResults.error || !mediaResults.success) {
+          setFormError(mediaResults.error || 'Failed to import shared image.');
+          setLoading(false);
+          return;
+        }
+        mediaId = mediaResults.success.media[0].id;
       }
-
-      const urlAWS = `${process.env.NEXT_PUBLIC_AWS_BUCKET_URL}/${signedUrl.success?.fileName}`;
-
-      const media = {
-        id: signedUrl.success?.fileName ?? '',
-        url: urlAWS,
-        type: data.recipeImage[0].type,
-        createdAt: new Date(),
-      };
-
-      const mediaResults = await createMedia(media);
 
       const recipe = {
-        id: signedUrl.success?.fileName ?? '',
+        id: mediaId,
         title: data.recipeName,
         description: data.recipeDescription,
-        media: mediaResults.success?.media[0].id ?? '',
+        media: mediaId,
         category: data.categoryId,
         userId: '',
         ingredients: ingredients.join(', '),
@@ -150,9 +223,10 @@ export default function CreateRecipeForm() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setRemoteImageUrl(null);
       setImagePreview(URL.createObjectURL(file));
     } else {
-      setImagePreview(null);
+      setImagePreview(remoteImageUrl);
     }
   };
 
@@ -201,6 +275,32 @@ export default function CreateRecipeForm() {
       </div>
 
       <div className='container mx-auto px-4 -mt-8 relative z-10 pb-12'>
+        {prefillLoading && (
+          <div className='max-w-6xl mx-auto mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl'>
+            <p className='text-orange-700 text-sm flex items-center'>
+              <svg
+                className='animate-spin -ml-1 mr-3 h-5 w-5 text-orange-500'
+                fill='none'
+                viewBox='0 0 24 24'
+              >
+                <circle
+                  className='opacity-25'
+                  cx='12'
+                  cy='12'
+                  r='10'
+                  stroke='currentColor'
+                  strokeWidth='4'
+                ></circle>
+                <path
+                  className='opacity-75'
+                  fill='currentColor'
+                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                ></path>
+              </svg>
+              Importing recipe details from the shared link…
+            </p>
+          </div>
+        )}
         <form
           onSubmit={handleSubmit(onSubmit)}
           className='bg-white rounded-2xl shadow-2xl px-8 pt-8 pb-8 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 transform transition-all duration-300 hover:shadow-3xl'
@@ -331,7 +431,7 @@ export default function CreateRecipeForm() {
                   id='recipeImage'
                   type='file'
                   accept='image/*'
-                  {...register('recipeImage', { required: true })}
+                  {...register('recipeImage')}
                   onChange={handleImageChange}
                 />
                 <div className='absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none'>
@@ -350,7 +450,7 @@ export default function CreateRecipeForm() {
                   </svg>
                 </div>
               </div>
-              {errors.recipeImage && (
+              {imageError && (
                 <p className='text-red-500 text-sm mt-2 flex items-center'>
                   <svg
                     className='w-4 h-4 mr-1'
@@ -363,7 +463,7 @@ export default function CreateRecipeForm() {
                       clipRule='evenodd'
                     />
                   </svg>
-                  Recipe image is required.
+                  {imageError}
                 </p>
               )}
             </div>
@@ -384,6 +484,12 @@ export default function CreateRecipeForm() {
                     </div>
                   </div>
                 </div>
+                {remoteImageUrl && imagePreview === remoteImageUrl && (
+                  <p className='text-sm text-gray-500 mt-2'>
+                    Imported from shared recipe — choose a file above to
+                    replace it.
+                  </p>
+                )}
               </div>
             )}
 

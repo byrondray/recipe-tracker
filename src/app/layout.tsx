@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'CookBook+',
   description: 'A cookbook to find new recipes and keep track of your own',
+  manifest: '/manifest.webmanifest',
   appleWebApp: {
     title: 'CookBook+',
     statusBarStyle: 'black-translucent',
