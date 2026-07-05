@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Fraunces } from 'next/font/google';
+import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import Navbar from './components/navbar';
 import { auth } from '@/auth';
@@ -28,18 +29,6 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-export interface CustomSession {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    image: string | null;
-  };
-  sessionToken: string;
-  userId: string;
-  expires: string;
-}
-
 export default async function RootLayout({
   children,
 }: {
@@ -48,11 +37,13 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang='en'>
-      <body className={`${inter.className} ${fraunces.variable}`}>
-        <Navbar session={session!} />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang='en'>
+        <body className={`${inter.className} ${fraunces.variable}`}>
+          <Navbar session={session} />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

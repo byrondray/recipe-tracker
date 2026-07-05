@@ -1,14 +1,15 @@
 'use client';
 
-import { signOut } from 'next-auth/react';
+import { useClerk } from '@clerk/nextjs';
 import Link from 'next/link';
 import Image from 'next/image';
-import { type Session } from 'next-auth';
+import { type AppSession } from '@/auth';
 import { useEffect, useRef, useState } from 'react';
 
 const MENU_CLOSE_DELAY_MS = 150;
 
-export default function Navbar({ session }: { session: Session | null }) {
+export default function Navbar({ session }: { session: AppSession | null }) {
+  const { signOut } = useClerk();
   const currentUserId = session?.user?.id ?? null;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -249,7 +250,7 @@ export default function Navbar({ session }: { session: Session | null }) {
               </div>
             ) : (
               <Link
-                href='/api/auth/signin'
+                href='/sign-in'
                 className='hidden md:flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-full font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105'
               >
                 <svg
@@ -415,7 +416,7 @@ export default function Navbar({ session }: { session: Session | null }) {
                 </div>
               ) : (
                 <Link
-                  href='/api/auth/signin'
+                  href='/sign-in'
                   className='w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full font-medium'
                 >
                   <svg
