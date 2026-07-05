@@ -63,6 +63,7 @@ function CreateRecipeForm() {
   const [stepError, setStepError] = useState<string | null>(null);
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [isSharedImport, setIsSharedImport] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -107,9 +108,21 @@ function CreateRecipeForm() {
             }
           } else {
             setValue('recipeName', sharedTitle || sharedUrl);
+            setImportError(
+              result.reason === 'blocked'
+                ? "This site blocks automated imports, so we couldn't pull in the recipe details automatically. Please fill in the ingredients and steps yourself below."
+                : result.reason === 'no_recipe_data'
+                ? "We couldn't find structured recipe data on that page. Please fill in the ingredients and steps yourself below."
+                : "We couldn't load that page to import the recipe. Please fill in the details yourself below."
+            );
           }
         })
-        .catch(() => setValue('recipeName', sharedTitle || sharedUrl))
+        .catch(() => {
+          setValue('recipeName', sharedTitle || sharedUrl);
+          setImportError(
+            "We couldn't load that page to import the recipe. Please fill in the details yourself below."
+          );
+        })
         .finally(() => setPrefillLoading(false));
     } else if (sharedTitle) {
       setValue('recipeName', sharedTitle);
@@ -312,6 +325,39 @@ function CreateRecipeForm() {
               </svg>
               Importing recipe details from the shared link…
             </p>
+          </div>
+        )}
+        {importError && (
+          <div className='max-w-6xl mx-auto mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3'>
+            <svg
+              className='w-5 h-5 text-amber-500 shrink-0 mt-0.5'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
+                d='M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z'
+              />
+            </svg>
+            <p className='text-amber-800 text-sm flex-1'>{importError}</p>
+            <button
+              type='button'
+              onClick={() => setImportError(null)}
+              aria-label='Dismiss'
+              className='text-amber-500 hover:text-amber-700 transition-colors duration-150 shrink-0'
+            >
+              <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth='2'
+                  d='M6 18L18 6M6 6l12 12'
+                />
+              </svg>
+            </button>
           </div>
         )}
         <form

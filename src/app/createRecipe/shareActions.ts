@@ -1,7 +1,11 @@
 'use server';
 
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { extractRecipeFromUrl } from '@/lib/recipeExtractor';
+import {
+  extractRecipeFromUrl,
+  ExtractRecipeError,
+  ExtractRecipeFailureReason,
+} from '@/lib/recipeExtractor';
 import { auth } from '@/auth';
 import { generateFileName, createMedia } from './actions';
 
@@ -27,11 +31,16 @@ const maxFileSize = 1024 * 1024 * 10;
 export async function extractRecipeFromUrlAction(url: string) {
   try {
     const recipe = await extractRecipeFromUrl(url);
-    if (!recipe) return { error: 'No structured recipe data found.' };
     return { success: { recipe } };
   } catch (error) {
+    if (error instanceof ExtractRecipeError) {
+      return { error: error.message, reason: error.reason };
+    }
     console.error('Error extracting recipe from URL:', error);
-    return { error: 'Failed to fetch shared page.' };
+    return {
+      error: 'Failed to fetch shared page.',
+      reason: 'unreachable' as ExtractRecipeFailureReason,
+    };
   }
 }
 

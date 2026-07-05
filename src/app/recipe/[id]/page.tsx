@@ -15,6 +15,7 @@ import { DeleteConfirmModal } from '@/app/components/deleteConfirmModal';
 import {
   isRecipeFavourited,
   toggleFavourite,
+  getFavouriteCount,
 } from '@/app/favourites/action';
 import { ReviewSection } from '@/app/components/reviewSection';
 
@@ -29,6 +30,7 @@ export default function RecipePage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [favourited, setFavourited] = useState(false);
   const [togglingFavourite, setTogglingFavourite] = useState(false);
+  const [favouriteCount, setFavouriteCount] = useState<number | null>(null);
 
   const params = useParams();
   const router = useRouter();
@@ -41,12 +43,22 @@ export default function RecipePage() {
     setTogglingFavourite(true);
     const previous = favourited;
     setFavourited(!previous);
+    if (currentUserId === recipe.userId) {
+      setFavouriteCount((count) =>
+        count === null ? count : count + (previous ? -1 : 1)
+      );
+    }
 
     const result = await toggleFavourite(recipe.id);
     setTogglingFavourite(false);
 
     if (!result.success) {
       setFavourited(previous);
+      if (currentUserId === recipe.userId) {
+        setFavouriteCount((count) =>
+          count === null ? count : count + (previous ? 1 : -1)
+        );
+      }
     }
   };
 
@@ -82,6 +94,17 @@ export default function RecipePage() {
             );
             if (favResult.success) {
               setFavourited(favResult.success.favourited);
+            }
+            if (
+              currentUser.success.session.user.id ===
+              result.success.recipe[0].recipe.userId
+            ) {
+              const countResult = await getFavouriteCount(
+                result.success.recipe[0].recipe.id
+              );
+              if (countResult.success) {
+                setFavouriteCount(countResult.success.count);
+              }
             }
           }
         } else {
@@ -171,11 +194,20 @@ export default function RecipePage() {
                 <h1 className='text-4xl md:text-5xl font-heading font-semibold mb-4 animate-fade-in-down'>
                   {recipe.title}
                 </h1>
-                {category && (
-                  <div className='inline-block bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-lg font-medium mb-4'>
-                    {category}
-                  </div>
-                )}
+                <div className='flex flex-wrap items-center gap-3 mb-4'>
+                  {category && (
+                    <div className='inline-block bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-lg font-medium'>
+                      {category}
+                    </div>
+                  )}
+                  {currentUserId === recipe.userId && favouriteCount !== null && (
+                    <div className='inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-lg font-medium'>
+                      <FaHeart className='w-4 h-4 text-red-200' />
+                      {favouriteCount}{' '}
+                      {favouriteCount === 1 ? 'favourite' : 'favourites'}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className='flex flex-wrap gap-3 w-full md:w-auto'>
                 {currentUserId === recipe.userId && (

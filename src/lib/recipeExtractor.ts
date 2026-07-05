@@ -6,28 +6,60 @@ export interface ExtractedRecipe {
   sourceUrl: string;
 }
 
+export type ExtractRecipeFailureReason = 'blocked' | 'unreachable' | 'no_recipe_data';
+
+export class ExtractRecipeError extends Error {
+  constructor(public reason: ExtractRecipeFailureReason, message: string) {
+    super(message);
+    this.name = 'ExtractRecipeError';
+  }
+}
+
 type JsonLdNode = Record<string, unknown>;
+
+const BOT_BLOCK_STATUS_CODES = new Set([401, 402, 403, 429]);
 
 export async function extractRecipeFromUrl(
   url: string
 ): Promise<ExtractedRecipe | null> {
   let html: string;
+  let res: Response;
   try {
-    const res = await fetch(url, {
+    res = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; CookBookPlusBot/1.0)' },
       signal: AbortSignal.timeout(8000),
     });
-    if (!res.ok) return null;
-    html = await res.text();
   } catch {
-    return null;
+    throw new ExtractRecipeError(
+      'unreachable',
+      'Could not reach that page.'
+    );
   }
+
+  if (!res.ok) {
+    if (BOT_BLOCK_STATUS_CODES.has(res.status) || res.headers.get('server') === 'cloudflare') {
+      throw new ExtractRecipeError(
+        'blocked',
+        'This site blocks automated imports.'
+      );
+    }
+    throw new ExtractRecipeError(
+      'unreachable',
+      `The page returned an error (status ${res.status}).`
+    );
+  }
+
+  html = await res.text();
 
   for (const block of extractJsonLdBlocks(html)) {
     const recipeNode = findRecipeNode(block);
     if (recipeNode) return normalizeRecipeNode(recipeNode, url);
   }
-  return null;
+
+  throw new ExtractRecipeError(
+    'no_recipe_data',
+    'No structured recipe data found on that page.'
+  );
 }
 
 function extractJsonLdBlocks(html: string): unknown[] {

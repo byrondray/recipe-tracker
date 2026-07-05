@@ -225,7 +225,7 @@ export default function HomePage() {
           </div>
 
           <div className='mt-4 flex flex-wrap gap-3'>
-            <div className='flex-1 min-w-[160px]'>
+            <div className='flex-1 min-w-[160px] relative'>
               <label htmlFor='category-filter' className='sr-only'>
                 Filter by category
               </label>
@@ -233,7 +233,7 @@ export default function HomePage() {
                 id='category-filter'
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className='w-full px-4 py-2.5 border-2 border-gray-200 rounded-full text-gray-700 bg-white focus:border-orange-400 focus:outline-none transition-all duration-200'
+                className='w-full appearance-none px-4 py-2.5 pr-10 border-2 border-gray-200 rounded-full text-gray-700 bg-white focus:border-orange-400 focus:outline-none transition-all duration-200'
               >
                 <option value=''>All categories</option>
                 {categories.map((c) => (
@@ -242,9 +242,22 @@ export default function HomePage() {
                   </option>
                 ))}
               </select>
+              <svg
+                className='pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth='2'
+                  d='M19 9l-7 7-7-7'
+                />
+              </svg>
             </div>
 
-            <div className='flex-1 min-w-[160px]'>
+            <div className='flex-1 min-w-[160px] relative'>
               <label htmlFor='rating-filter' className='sr-only'>
                 Filter by minimum rating
               </label>
@@ -252,7 +265,7 @@ export default function HomePage() {
                 id='rating-filter'
                 value={minRating}
                 onChange={(e) => setMinRating(Number(e.target.value))}
-                className='w-full px-4 py-2.5 border-2 border-gray-200 rounded-full text-gray-700 bg-white focus:border-orange-400 focus:outline-none transition-all duration-200'
+                className='w-full appearance-none px-4 py-2.5 pr-10 border-2 border-gray-200 rounded-full text-gray-700 bg-white focus:border-orange-400 focus:outline-none transition-all duration-200'
               >
                 {MIN_RATING_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -260,9 +273,22 @@ export default function HomePage() {
                   </option>
                 ))}
               </select>
+              <svg
+                className='pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth='2'
+                  d='M19 9l-7 7-7-7'
+                />
+              </svg>
             </div>
 
-            <div className='flex-1 min-w-[160px]'>
+            <div className='flex-1 min-w-[160px] relative'>
               <label htmlFor='sort-filter' className='sr-only'>
                 Sort recipes
               </label>
@@ -270,7 +296,7 @@ export default function HomePage() {
                 id='sort-filter'
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
-                className='w-full px-4 py-2.5 border-2 border-gray-200 rounded-full text-gray-700 bg-white focus:border-orange-400 focus:outline-none transition-all duration-200'
+                className='w-full appearance-none px-4 py-2.5 pr-10 border-2 border-gray-200 rounded-full text-gray-700 bg-white focus:border-orange-400 focus:outline-none transition-all duration-200'
               >
                 {SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -278,6 +304,19 @@ export default function HomePage() {
                   </option>
                 ))}
               </select>
+              <svg
+                className='pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth='2'
+                  d='M19 9l-7 7-7-7'
+                />
+              </svg>
             </div>
           </div>
         </div>

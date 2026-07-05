@@ -8,7 +8,7 @@ import {
   recipe as recipeSchema,
 } from '@/db/schema/schema';
 import { db } from '@/lib/db';
-import { and, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import crypto from 'crypto';
 
 export async function isRecipeFavourited(recipeId: string) {
@@ -72,6 +72,20 @@ export async function toggleFavourite(recipeId: string) {
   } catch (error) {
     console.error('Error toggling favourite:', error);
     return { error: 'Error toggling favourite' };
+  }
+}
+
+export async function getFavouriteCount(recipeId: string) {
+  try {
+    const [result] = await db
+      .select({ total: count() })
+      .from(favouriteRecipe)
+      .where(eq(favouriteRecipe.recipeId, recipeId));
+
+    return { success: { count: result?.total ?? 0 } };
+  } catch (error) {
+    console.error('Error getting favourite count:', error);
+    return { error: 'Error getting favourite count' };
   }
 }
 
