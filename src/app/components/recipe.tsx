@@ -2,9 +2,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { deleteRecipe } from '../recipe/[id]/action';
-import { useState } from 'react';
-import { FaTrashAlt } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import { FaTrashAlt, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { DeleteConfirmModal } from './deleteConfirmModal';
+import {
+  isRecipeFavourited,
+  toggleFavourite,
+} from '../favourites/action';
 
 export const Recipe = ({
   id,
@@ -15,6 +19,7 @@ export const Recipe = ({
   currentUserId = null,
   onDeleted,
   showDeleteButton = false,
+  onUnfavourited,
 }: {
   id: string;
   title: string;
@@ -24,12 +29,30 @@ export const Recipe = ({
   currentUserId?: string | null;
   onDeleted?: (id: string) => void;
   showDeleteButton?: boolean;
+  onUnfavourited?: (id: string) => void;
 }) => {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [favourited, setFavourited] = useState(false);
+  const [togglingFavourite, setTogglingFavourite] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!currentUserId) return;
+    let cancelled = false;
+
+    isRecipeFavourited(id).then((result) => {
+      if (!cancelled && result.success) {
+        setFavourited(result.success.favourited);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, currentUserId]);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -55,6 +78,28 @@ export const Recipe = ({
     e.preventDefault();
     e.stopPropagation();
     setShowDeleteModal(true);
+  };
+
+  const handleFavouriteClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!currentUserId || togglingFavourite) return;
+
+    setTogglingFavourite(true);
+    const previous = favourited;
+    setFavourited(!previous);
+
+    const result = await toggleFavourite(id);
+    setTogglingFavourite(false);
+
+    if (!result.success) {
+      setFavourited(previous);
+      return;
+    }
+
+    if (!result.success.favourited) {
+      onUnfavourited?.(id);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -125,6 +170,25 @@ export const Recipe = ({
             {category}
           </span>
         </div>
+
+        {/* Favourite Button */}
+        {currentUserId && (
+          <button
+            onClick={handleFavouriteClick}
+            disabled={togglingFavourite}
+            aria-label={
+              favourited ? 'Remove from favourites' : 'Add to favourites'
+            }
+            aria-pressed={favourited}
+            className='absolute top-4 right-4 w-9 h-9 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-all duration-200 disabled:opacity-50'
+          >
+            {favourited ? (
+              <FaHeart className='w-4 h-4 text-red-500' />
+            ) : (
+              <FaRegHeart className='w-4 h-4 text-gray-500' />
+            )}
+          </button>
+        )}
 
         {/* Gradient Overlay */}
         <div className='absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>

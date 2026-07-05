@@ -111,7 +111,7 @@ export async function updateRecipe(
 
     const recipe = await db
       .update(recipeSchema)
-      .set({ title, ingredients, category, steps })
+      .set({ title, ingredients, category, steps, updatedAt: new Date() })
       .where(eq(recipeSchema.id, id))
       .returning();
 

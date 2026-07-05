@@ -91,6 +91,22 @@ export function UserProfilePageSkeleton() {
   );
 }
 
+export function FavouritesPageSkeleton() {
+  return (
+    <div className='min-h-screen bg-gradient-to-br from-orange-50 to-red-50'>
+      <HeroSkeleton />
+
+      <div className='container mx-auto px-4 py-12'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8'>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <RecipeCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function RecipeDetailPageSkeleton() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-orange-50 to-red-50'>
