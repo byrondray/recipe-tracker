@@ -16,6 +16,7 @@ import {
   isRecipeFavourited,
   toggleFavourite,
 } from '@/app/favourites/action';
+import { ReviewSection } from '@/app/components/reviewSection';
 
 export default function RecipePage() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -353,6 +354,8 @@ export default function RecipePage() {
                 )}
               </div>
             </div>
+
+            <ReviewSection recipeId={recipe.id} currentUserId={currentUserId} />
           </div>
         </div>
       </div>

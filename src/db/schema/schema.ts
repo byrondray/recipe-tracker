@@ -4,6 +4,7 @@ import {
   text,
   index,
   uniqueIndex,
+  integer,
 } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('user', {
@@ -74,6 +75,34 @@ export const favouriteRecipe = pgTable(
 
 export type FavouriteRecipe = typeof favouriteRecipe.$inferSelect;
 export type InsertFavouriteRecipe = typeof favouriteRecipe.$inferInsert;
+
+export const review = pgTable(
+  'review',
+  {
+    id: text('id').primaryKey().notNull(),
+    userId: text('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    recipeId: text('recipeId')
+      .notNull()
+      .references(() => recipe.id, { onDelete: 'cascade' }),
+    rating: integer('rating').notNull(),
+    comment: text('comment'),
+    createdAt: timestamp('createdAt', { mode: 'date' }).notNull().defaultNow(),
+    updatedAt: timestamp('updatedAt', { mode: 'date' }).notNull().defaultNow(),
+  },
+  (review) => ({
+    userIdIdx: index('review_userId_idx').on(review.userId),
+    recipeIdIdx: index('review_recipeId_idx').on(review.recipeId),
+    userRecipeUniqueIdx: uniqueIndex('review_userId_recipeId_idx').on(
+      review.userId,
+      review.recipeId
+    ),
+  })
+);
+
+export type Review = typeof review.$inferSelect;
+export type InsertReview = typeof review.$inferInsert;
 
 export const media = pgTable(
   'media',
