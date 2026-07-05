@@ -13,6 +13,7 @@ import { db } from '@/lib/db';
 import { recipe as recipeSchema } from '@/db/schema/schema';
 import { auth } from '@/auth';
 import crypto from 'crypto';
+import { eq } from 'drizzle-orm';
 
 const s3 = new S3Client({
   region: process.env.MY_AWS_BUCKET_REGION,
@@ -125,5 +126,27 @@ export async function getCategories() {
   } catch (error) {
     console.error('Error getting categories:', error);
     return { error: 'Error getting categories' };
+  }
+}
+
+const UNCATEGORIZED_NAME = 'Uncategorized';
+
+export async function getOrCreateUncategorizedCategory() {
+  try {
+    const [existing] = await db
+      .select()
+      .from(category)
+      .where(eq(category.name, UNCATEGORIZED_NAME))
+      .limit(1);
+    if (existing) return { success: { category: existing } };
+
+    const [created] = await db
+      .insert(category)
+      .values({ id: generateFileNameSync(), name: UNCATEGORIZED_NAME })
+      .returning();
+    return { success: { category: created } };
+  } catch (error) {
+    console.error('Error getting or creating Uncategorized category:', error);
+    return { error: 'Error getting or creating Uncategorized category' };
   }
 }

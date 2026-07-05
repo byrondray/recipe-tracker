@@ -10,6 +10,7 @@ import {
   createRecipe,
   createMedia,
   getCategories,
+  getOrCreateUncategorizedCategory,
 } from './actions';
 import {
   extractRecipeFromUrlAction,
@@ -62,6 +63,7 @@ function CreateRecipeForm() {
   const [ingredientError, setIngredientError] = useState<string | null>(null);
   const [stepError, setStepError] = useState<string | null>(null);
   const [categoryError, setCategoryError] = useState<string | null>(null);
+  const [isSharedImport, setIsSharedImport] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -87,6 +89,8 @@ function CreateRecipeForm() {
     const sharedUrl = searchParams.get('sharedUrl');
     const sharedTitle = searchParams.get('sharedTitle');
     if (!sharedUrl && !sharedTitle) return;
+
+    setIsSharedImport(true);
 
     if (sharedUrl) {
       setPrefillLoading(true);
@@ -118,13 +122,23 @@ function CreateRecipeForm() {
     setFormError(null);
     setLoading(true);
 
-    if (!data.categoryId) {
-      setCategoryError('Please select a category.');
-      setLoading(false);
-      return;
-    } else {
-      setCategoryError(null);
+    let categoryId = data.categoryId;
+    if (!categoryId) {
+      if (isSharedImport) {
+        const uncategorized = await getOrCreateUncategorizedCategory();
+        if (uncategorized.error || !uncategorized.success) {
+          setFormError(uncategorized.error || 'Failed to assign a category.');
+          setLoading(false);
+          return;
+        }
+        categoryId = uncategorized.success.category.id;
+      } else {
+        setCategoryError('Please select a category.');
+        setLoading(false);
+        return;
+      }
     }
+    setCategoryError(null);
 
     if (!data.recipeImage?.[0] && !remoteImageUrl) {
       setImageError('Recipe image is required.');
@@ -194,7 +208,7 @@ function CreateRecipeForm() {
         title: data.recipeName,
         description: data.recipeDescription,
         media: mediaId,
-        category: data.categoryId,
+        category: categoryId,
         userId: '',
         ingredients: ingredients.join(', '),
         steps: steps.join(', '),
@@ -348,6 +362,11 @@ function CreateRecipeForm() {
                 htmlFor='category'
               >
                 Category
+                {isSharedImport && (
+                  <span className='font-normal text-gray-400 text-sm ml-2'>
+                    (optional — defaults to Uncategorized)
+                  </span>
+                )}
               </label>
               <div className='relative'>
                 <select
@@ -355,7 +374,7 @@ function CreateRecipeForm() {
                     categoryError ? 'border-red-400' : ''
                   }`}
                   id='category'
-                  {...register('categoryId', { required: true })}
+                  {...register('categoryId', { required: !isSharedImport })}
                 >
                   <option value='' disabled>
                     Choose a category...
