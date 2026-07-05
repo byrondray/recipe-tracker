@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { FaTrashAlt } from 'react-icons/fa';
+import { FaTrashAlt, FaHeart, FaRegHeart } from 'react-icons/fa';
 import Image from 'next/image';
 import { getRecipe, getCurrentUserData, deleteRecipe } from './action';
 import { Recipe } from '@/db/schema/schema';
@@ -12,6 +12,10 @@ import { ShareButton } from '@/app/components/shareButton';
 import { usePageTitle } from '@/app/components/usePageTitle';
 import { RecipeDetailPageSkeleton } from '@/app/components/skeletons';
 import { DeleteConfirmModal } from '@/app/components/deleteConfirmModal';
+import {
+  isRecipeFavourited,
+  toggleFavourite,
+} from '@/app/favourites/action';
 
 export default function RecipePage() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -22,11 +26,28 @@ export default function RecipePage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [favourited, setFavourited] = useState(false);
+  const [togglingFavourite, setTogglingFavourite] = useState(false);
 
   const params = useParams();
   const router = useRouter();
 
   usePageTitle(recipe ? recipe.title : 'Recipe');
+
+  const handleFavouriteClick = async () => {
+    if (!currentUserId || togglingFavourite || !recipe) return;
+
+    setTogglingFavourite(true);
+    const previous = favourited;
+    setFavourited(!previous);
+
+    const result = await toggleFavourite(recipe.id);
+    setTogglingFavourite(false);
+
+    if (!result.success) {
+      setFavourited(previous);
+    }
+  };
 
   const handleDelete = async () => {
     if (!recipe) return;
@@ -55,6 +76,12 @@ export default function RecipePage() {
           setCategory(result.success.recipe[0].category);
           if (currentUser.success?.session?.user) {
             setCurrentUserId(currentUser.success.session.user.id);
+            const favResult = await isRecipeFavourited(
+              result.success.recipe[0].recipe.id
+            );
+            if (favResult.success) {
+              setFavourited(favResult.success.favourited);
+            }
           }
         } else {
           throw new Error('Recipe not found');
@@ -179,6 +206,21 @@ export default function RecipePage() {
                   >
                     <FaTrashAlt className='w-4 h-4' />
                     {deleting ? 'Deleting...' : 'Delete Recipe'}
+                  </button>
+                )}
+                {currentUserId && (
+                  <button
+                    onClick={handleFavouriteClick}
+                    disabled={togglingFavourite}
+                    aria-pressed={favourited}
+                    className='flex-1 md:flex-none justify-center bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full font-medium hover:bg-white/30 transition-all duration-200 shadow-lg flex items-center gap-2 disabled:opacity-50'
+                  >
+                    {favourited ? (
+                      <FaHeart className='w-4 h-4 text-red-200' />
+                    ) : (
+                      <FaRegHeart className='w-4 h-4' />
+                    )}
+                    {favourited ? 'Favourited' : 'Favourite'}
                   </button>
                 )}
                 <ShareButton
