@@ -311,7 +311,10 @@ export default function RecipePage() {
                 </h3>
                 {recipe.ingredients ? (
                   <div className='space-y-2'>
-                    {recipe.ingredients.split(',').map((ingredient, index) => (
+                    {recipe.ingredients
+                      .split('\n')
+                      .filter((s) => s.trim())
+                      .map((ingredient, index) => (
                       <div
                         key={index}
                         className='flex items-center py-2 border-b border-gray-100 last:border-b-0'
@@ -352,7 +355,10 @@ export default function RecipePage() {
                 </h3>
                 {recipe.steps ? (
                   <div className='space-y-3'>
-                    {recipe.steps.split(',').map((step, index) => (
+                    {recipe.steps
+                      .split('\n')
+                      .filter((s) => s.trim())
+                      .map((step, index) => (
                       <div
                         key={index}
                         className='flex items-start py-2 border-b border-gray-100 last:border-b-0'

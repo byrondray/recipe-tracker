@@ -222,8 +222,8 @@ function CreateRecipeForm() {
         media: mediaId,
         category: categoryId,
         userId: '',
-        ingredients: ingredients.join(', '),
-        steps: steps.join(', '),
+        ingredients: ingredients.join('\n'),
+        steps: steps.join('\n'),
       };
 
       const result = await createRecipe(recipe);

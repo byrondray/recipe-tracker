@@ -98,11 +98,17 @@ export default function EditRecipeForm() {
           setValue('recipeName', recipe.title);
           setValue('categoryId', recipe.category);
           setIngredients(
-            recipe.ingredients.split(',').map((item: string) => item.trim())
+            recipe.ingredients
+              .split('\n')
+              .map((item: string) => item.trim())
+              .filter(Boolean)
           );
           setFileName(recipe.media);
           setSteps(
-            (recipe.steps ?? '').split(',').map((item: string) => item.trim())
+            (recipe.steps ?? '')
+              .split('\n')
+              .map((item: string) => item.trim())
+              .filter(Boolean)
           );
           setImagePreview(imageUrl);
           setImageDeleted(false);
@@ -197,8 +203,8 @@ export default function EditRecipeForm() {
       const result = await updateRecipe(
         recipeId,
         data.recipeName,
-        steps.join(', '),
-        ingredients.join(', '),
+        steps.join('\n'),
+        ingredients.join('\n'),
         data.categoryId,
         finalFileName,
         mimeTypeToSend
