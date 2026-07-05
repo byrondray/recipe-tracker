@@ -15,12 +15,28 @@ type InstallState =
   | 'unsupported'
   | 'installing';
 
+type Platform = 'android' | 'ios' | 'other';
+
+function detectPlatform(): Platform {
+  const ua = window.navigator.userAgent;
+  if (/android/i.test(ua)) return 'android';
+  if (/iphone|ipad|ipod/i.test(ua)) return 'ios';
+  // iPadOS 13+ reports as Mac with touch support
+  if (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1) return 'ios';
+  return 'other';
+}
+
 export default function DownloadPage() {
   usePageTitle('Get the App');
 
   const [installState, setInstallState] = useState<InstallState>('checking');
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
+  const [platform, setPlatform] = useState<Platform>('other');
+
+  useEffect(() => {
+    setPlatform(detectPlatform());
+  }, []);
 
   useEffect(() => {
     const isStandalone =
@@ -208,31 +224,40 @@ export default function DownloadPage() {
                 Your browser doesn&apos;t support one-tap install, but you can
                 still add CookBook+ to your home screen:
               </p>
-              <div className='grid sm:grid-cols-2 gap-4 text-left'>
-                <div className='bg-gray-50 rounded-xl p-5 border border-gray-200'>
-                  <p className='font-semibold text-gray-800 mb-2'>
-                    Android (Chrome)
-                  </p>
-                  <p className='text-sm text-gray-600'>
-                    Tap the <span className='font-medium'>⋮</span> menu, then{' '}
-                    <span className='font-medium'>
-                      &quot;Add to Home screen&quot;
-                    </span>
-                    .
-                  </p>
-                </div>
-                <div className='bg-gray-50 rounded-xl p-5 border border-gray-200'>
-                  <p className='font-semibold text-gray-800 mb-2'>
-                    iPhone (Safari)
-                  </p>
-                  <p className='text-sm text-gray-600'>
-                    Tap the Share icon, then{' '}
-                    <span className='font-medium'>
-                      &quot;Add to Home Screen&quot;
-                    </span>
-                    .
-                  </p>
-                </div>
+              <div
+                className={`grid gap-4 text-left ${
+                  platform === 'other' ? 'sm:grid-cols-2' : 'sm:grid-cols-1'
+                }`}
+              >
+                {(platform === 'android' || platform === 'other') && (
+                  <div className='bg-gray-50 rounded-xl p-5 border border-gray-200'>
+                    <p className='font-semibold text-gray-800 mb-2'>
+                      Android (Chrome)
+                    </p>
+                    <p className='text-sm text-gray-600'>
+                      Tap the <span className='font-medium'>⋮</span> menu,
+                      then{' '}
+                      <span className='font-medium'>
+                        &quot;Add to Home screen&quot;
+                      </span>
+                      .
+                    </p>
+                  </div>
+                )}
+                {(platform === 'ios' || platform === 'other') && (
+                  <div className='bg-gray-50 rounded-xl p-5 border border-gray-200'>
+                    <p className='font-semibold text-gray-800 mb-2'>
+                      iPhone (Safari)
+                    </p>
+                    <p className='text-sm text-gray-600'>
+                      Tap the Share icon, then{' '}
+                      <span className='font-medium'>
+                        &quot;Add to Home Screen&quot;
+                      </span>
+                      .
+                    </p>
+                  </div>
+                )}
               </div>
             </>
           )}
