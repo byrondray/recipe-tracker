@@ -4,7 +4,7 @@ import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { type Session } from 'next-auth';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const MENU_CLOSE_DELAY_MS = 150;
 
@@ -13,6 +13,12 @@ export default function Navbar({ session }: { session: Session | null }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  }, []);
 
   const closeMenus = () => {
     setIsMenuOpen(false);
