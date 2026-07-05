@@ -5,37 +5,10 @@ import {
 } from '@/db/schema/schema';
 import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
-import {
-  S3Client,
-  DeleteObjectCommand,
-  PutObjectCommand,
-} from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { auth } from '@/auth';
 import { getSignedUrl as getAWSsignedURL } from '@aws-sdk/s3-request-presigner';
-
-const s3 = new S3Client({
-  region: process.env.MY_AWS_BUCKET_REGION!,
-  credentials: {
-    accessKeyId: process.env.MY_AWS_ACCESS_KEY!,
-    secretAccessKey: process.env.MY_AWS_SECRET_KEY!,
-  },
-});
-
-const acceptedImageTypes = [
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'image/svg+xml',
-  'image/jpg',
-];
-
-const maxFileSize = 5 * 1024 * 1024; // 5 MB
-
-const getFileExtension = (url: string) => {
-  const parts = url.split('.');
-  return parts[parts.length - 1];
-};
+import { s3, ACCEPTED_IMAGE_TYPES, MAX_IMAGE_FILE_SIZE } from '@/lib/s3';
 
 export async function getSignedUrlForExistingFile(
   type: string,
@@ -45,18 +18,18 @@ export async function getSignedUrlForExistingFile(
   const session = await auth();
   if (!session) return { error: 'Not authenticated' };
 
-  if (!acceptedImageTypes.includes(type)) {
+  if (!ACCEPTED_IMAGE_TYPES.includes(type)) {
     return { error: 'You can only upload images.' };
   }
 
-  if (size > maxFileSize) {
+  if (size > MAX_IMAGE_FILE_SIZE) {
     return { error: 'File is too large.' };
   }
 
   const finalFileName = fileName;
 
   if (!finalFileName || typeof finalFileName !== 'string') {
-    throw new Error('File name is invalid');
+    return { error: 'File name is invalid' };
   }
 
   const putObjectCommand = new PutObjectCommand({
@@ -134,10 +107,11 @@ export async function updateRecipe(
           .where(eq(mediaSchema.id, fileName))
           .limit(1);
 
-        if (
-          existingMedia.length > 0 &&
-          existingMedia[0].userId === session.user.id
-        ) {
+        if (existingMedia.length > 0) {
+          if (existingMedia[0].userId !== session.user.id) {
+            throw new Error('You are not authorized to use this file.');
+          }
+
           await db
             .update(recipeSchema)
             .set({ media: existingMedia[0].id })
@@ -203,9 +177,13 @@ export async function deleteMedia(id: string) {
     const mediaUrl = mediaToDelete[0].url;
     const mediaKey = mediaUrl.split('/').pop();
 
+    if (!mediaKey) {
+      return { error: 'Could not determine the file to delete.' };
+    }
+
     const deleteObjectCommand = new DeleteObjectCommand({
       Bucket: process.env.MY_AWS_BUCKET_NAME,
-      Key: mediaKey!,
+      Key: mediaKey,
     });
 
     await s3.send(deleteObjectCommand);

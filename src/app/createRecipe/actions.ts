@@ -1,6 +1,6 @@
 'use server';
 
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getSignedURL } from '@aws-sdk/s3-request-presigner';
 import {
   category,
@@ -14,25 +14,7 @@ import { recipe as recipeSchema } from '@/db/schema/schema';
 import { auth } from '@/auth';
 import crypto from 'crypto';
 import { eq } from 'drizzle-orm';
-
-const s3 = new S3Client({
-  region: process.env.MY_AWS_BUCKET_REGION,
-  credentials: {
-    accessKeyId: process.env.MY_AWS_ACCESS_KEY!,
-    secretAccessKey: process.env.MY_AWS_SECRET_KEY!,
-  },
-});
-
-const acceptedTypes = [
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'image/svg+xml',
-  'image/jpg',
-];
-
-const maxFileSize = 1024 * 1024 * 10;
+import { s3, ACCEPTED_IMAGE_TYPES, MAX_IMAGE_FILE_SIZE } from '@/lib/s3';
 
 const generateFileNameSync = (bytes = 32) =>
   crypto.randomBytes(bytes).toString('hex');
@@ -52,10 +34,10 @@ export async function getSignedUrl(type: string, size: number) {
   const session = await auth();
   if (!session) return { error: 'Not authenticated' };
 
-  if (!acceptedTypes.includes(type))
+  if (!ACCEPTED_IMAGE_TYPES.includes(type))
     return { error: 'You can only upload images.' };
 
-  if (size > maxFileSize) return { error: 'File is too large.' };
+  if (size > MAX_IMAGE_FILE_SIZE) return { error: 'File is too large.' };
 
   const fileName = generateFileNameSync();
 

@@ -1,3 +1,5 @@
+import { safeFetch, UnsafeUrlError } from '@/lib/safeFetch';
+
 export interface ExtractedRecipe {
   title?: string;
   ingredients?: string[];
@@ -25,11 +27,14 @@ export async function extractRecipeFromUrl(
   let html: string;
   let res: Response;
   try {
-    res = await fetch(url, {
+    res = await safeFetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; CookBookPlusBot/1.0)' },
       signal: AbortSignal.timeout(8000),
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof UnsafeUrlError) {
+      throw new ExtractRecipeError('unreachable', error.message);
+    }
     throw new ExtractRecipeError(
       'unreachable',
       'Could not reach that page.'

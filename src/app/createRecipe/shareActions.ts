@@ -1,32 +1,15 @@
 'use server';
 
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import {
   extractRecipeFromUrl,
   ExtractRecipeError,
   ExtractRecipeFailureReason,
 } from '@/lib/recipeExtractor';
+import { safeFetch, UnsafeUrlError } from '@/lib/safeFetch';
 import { auth } from '@/auth';
+import { s3, ACCEPTED_IMAGE_TYPES, MAX_IMAGE_FILE_SIZE } from '@/lib/s3';
 import { generateFileName, createMedia } from './actions';
-
-const s3 = new S3Client({
-  region: process.env.MY_AWS_BUCKET_REGION,
-  credentials: {
-    accessKeyId: process.env.MY_AWS_ACCESS_KEY!,
-    secretAccessKey: process.env.MY_AWS_SECRET_KEY!,
-  },
-});
-
-const acceptedTypes = [
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'image/svg+xml',
-  'image/jpg',
-];
-
-const maxFileSize = 1024 * 1024 * 10;
 
 export async function extractRecipeFromUrlAction(url: string) {
   try {
@@ -50,8 +33,11 @@ export async function uploadRemoteImageToS3(remoteUrl: string) {
 
   let res: Response;
   try {
-    res = await fetch(remoteUrl, { signal: AbortSignal.timeout(10000) });
-  } catch {
+    res = await safeFetch(remoteUrl, { signal: AbortSignal.timeout(10000) });
+  } catch (error) {
+    if (error instanceof UnsafeUrlError) {
+      return { error: error.message };
+    }
     return { error: 'Could not download the shared image.' };
   }
   if (!res.ok) return { error: 'Could not download the shared image.' };
@@ -60,12 +46,12 @@ export async function uploadRemoteImageToS3(remoteUrl: string) {
     .split(';')[0]
     .trim()
     .toLowerCase();
-  if (!acceptedTypes.includes(contentType)) {
+  if (!ACCEPTED_IMAGE_TYPES.includes(contentType)) {
     return { error: 'Shared image is not a supported format.' };
   }
 
   const buffer = Buffer.from(await res.arrayBuffer());
-  if (buffer.byteLength > maxFileSize) {
+  if (buffer.byteLength > MAX_IMAGE_FILE_SIZE) {
     return { error: 'Shared image is too large.' };
   }
 

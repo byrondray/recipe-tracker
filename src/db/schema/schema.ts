@@ -23,7 +23,7 @@ export const recipe = pgTable(
     title: text('title').notNull(),
     ingredients: text('ingredients').notNull(),
     steps: text('steps'),
-    media: text('media').references(() => media.id, { onDelete: 'cascade' }),
+    media: text('media').references(() => media.id, { onDelete: 'set null' }),
     category: text('category')
       .references(() => category.id, {
         onDelete: 'cascade',
