@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { FaTrashAlt } from 'react-icons/fa';
 import Image from 'next/image';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { getRecipe, getCurrentUserData, deleteRecipe } from './action';
 import { Recipe } from '@/db/schema/schema';
 import { Button } from '@/components/ui/button';
@@ -235,50 +234,40 @@ export default function RecipePage() {
                 <h3 className='text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-6'>
                   Ingredients
                 </h3>
-                <div className='bg-gray-50 rounded-xl p-6 border border-gray-200'>
-                  <ScrollArea className='h-[200px] w-full'>
-                    {recipe.ingredients ? (
-                      <div className='space-y-3'>
-                        {recipe.ingredients
-                          .split(',')
-                          .map((ingredient, index) => (
-                            <div
-                              key={index}
-                              className='flex items-center p-3 bg-white rounded-lg shadow-sm border border-gray-100'
-                            >
-                              <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-4'>
-                                <span className='text-green-600 font-semibold text-sm'>
-                                  {index + 1}
-                                </span>
-                              </div>
-                              <span className='text-gray-700 flex-1'>
-                                {ingredient.trim()}
-                              </span>
-                            </div>
-                          ))}
+                {recipe.ingredients ? (
+                  <div className='space-y-2'>
+                    {recipe.ingredients.split(',').map((ingredient, index) => (
+                      <div
+                        key={index}
+                        className='flex items-center py-2 border-b border-gray-100 last:border-b-0'
+                      >
+                        <span className='text-green-600 font-semibold text-sm w-7 shrink-0'>
+                          {index + 1}.
+                        </span>
+                        <span className='text-gray-700 flex-1'>
+                          {ingredient.trim()}
+                        </span>
                       </div>
-                    ) : (
-                      <div className='text-center py-8'>
-                        <svg
-                          className='w-12 h-12 text-gray-300 mx-auto mb-2'
-                          fill='none'
-                          stroke='currentColor'
-                          viewBox='0 0 24 24'
-                        >
-                          <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth='2'
-                            d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                          />
-                        </svg>
-                        <p className='text-gray-600'>
-                          No ingredients available
-                        </p>
-                      </div>
-                    )}
-                  </ScrollArea>
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className='text-center py-8'>
+                    <svg
+                      className='w-12 h-12 text-gray-300 mx-auto mb-2'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth='2'
+                        d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                      />
+                    </svg>
+                    <p className='text-gray-600'>No ingredients available</p>
+                  </div>
+                )}
               </div>
 
               {/* Steps */}
@@ -286,48 +275,40 @@ export default function RecipePage() {
                 <h3 className='text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-6'>
                   Cooking Steps
                 </h3>
-                <div className='bg-gray-50 rounded-xl p-6 border border-gray-200'>
-                  <ScrollArea className='h-[200px] w-full'>
-                    {recipe.steps ? (
-                      <div className='space-y-3'>
-                        {recipe.steps.split(',').map((step, index) => (
-                          <div
-                            key={index}
-                            className='flex items-start p-4 bg-white rounded-lg shadow-sm border border-gray-100'
-                          >
-                            <div className='w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-4 mt-1'>
-                              <span className='text-blue-600 font-semibold text-sm'>
-                                {index + 1}
-                              </span>
-                            </div>
-                            <span className='text-gray-700 flex-1 leading-relaxed'>
-                              {step.trim()}
-                            </span>
-                          </div>
-                        ))}
+                {recipe.steps ? (
+                  <div className='space-y-3'>
+                    {recipe.steps.split(',').map((step, index) => (
+                      <div
+                        key={index}
+                        className='flex items-start py-2 border-b border-gray-100 last:border-b-0'
+                      >
+                        <span className='text-blue-600 font-semibold text-sm w-7 shrink-0'>
+                          {index + 1}.
+                        </span>
+                        <span className='text-gray-700 flex-1 leading-relaxed'>
+                          {step.trim()}
+                        </span>
                       </div>
-                    ) : (
-                      <div className='text-center py-8'>
-                        <svg
-                          className='w-12 h-12 text-gray-300 mx-auto mb-2'
-                          fill='none'
-                          stroke='currentColor'
-                          viewBox='0 0 24 24'
-                        >
-                          <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth='2'
-                            d='M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'
-                          />
-                        </svg>
-                        <p className='text-gray-600'>
-                          No cooking steps available
-                        </p>
-                      </div>
-                    )}
-                  </ScrollArea>
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className='text-center py-8'>
+                    <svg
+                      className='w-12 h-12 text-gray-300 mx-auto mb-2'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth='2'
+                        d='M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'
+                      />
+                    </svg>
+                    <p className='text-gray-600'>No cooking steps available</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

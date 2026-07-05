@@ -5,7 +5,6 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { FaTrashAlt } from 'react-icons/fa';
 import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   updateRecipe,
   deleteMedia,
@@ -588,52 +587,48 @@ export default function EditRecipeForm() {
                 </p>
               )}
 
-              <div className='mt-4 bg-gray-50 rounded-xl p-4 border border-gray-200'>
-                <ScrollArea className='h-[150px] w-full'>
-                  {ingredients.length > 0 ? (
-                    <div className='space-y-2'>
-                      {ingredients.map((ingredient, index) => (
-                        <div
-                          key={index}
-                          className='flex justify-between items-center p-3 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200'
-                        >
-                          <span className='text-gray-700'>
-                            <span className='font-semibold text-orange-600'>
-                              {index + 1}.
-                            </span>{' '}
-                            {ingredient}
-                          </span>
-                          <button
-                            type='button'
-                            onClick={() => deleteIngredient(index)}
-                            aria-label={`Remove ingredient: ${ingredient}`}
-                            className='text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-all duration-200'
-                          >
-                            <FaTrashAlt className='w-4 h-4' />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className='text-center py-8'>
-                      <svg
-                        className='w-12 h-12 text-gray-300 mx-auto mb-2'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
+              {ingredients.length > 0 ? (
+                <div className='mt-4 space-y-2'>
+                  {ingredients.map((ingredient, index) => (
+                    <div
+                      key={index}
+                      className='flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0'
+                    >
+                      <span className='text-gray-700'>
+                        <span className='font-semibold text-orange-600'>
+                          {index + 1}.
+                        </span>{' '}
+                        {ingredient}
+                      </span>
+                      <button
+                        type='button'
+                        onClick={() => deleteIngredient(index)}
+                        aria-label={`Remove ingredient: ${ingredient}`}
+                        className='text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-all duration-200'
                       >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth='2'
-                          d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                        />
-                      </svg>
-                      <p className='text-gray-600'>No ingredients added</p>
+                        <FaTrashAlt className='w-4 h-4' />
+                      </button>
                     </div>
-                  )}
-                </ScrollArea>
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className='text-center py-8'>
+                  <svg
+                    className='w-12 h-12 text-gray-300 mx-auto mb-2'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='2'
+                      d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                    />
+                  </svg>
+                  <p className='text-gray-600'>No ingredients added</p>
+                </div>
+              )}
             </div>
 
             <div>
@@ -680,52 +675,48 @@ export default function EditRecipeForm() {
                 </p>
               )}
 
-              <div className='mt-4 bg-gray-50 rounded-xl p-4 border border-gray-200'>
-                <ScrollArea className='h-[150px] w-full'>
-                  {steps.length > 0 ? (
-                    <div className='space-y-2'>
-                      {steps.map((step, index) => (
-                        <div
-                          key={index}
-                          className='flex justify-between items-center p-3 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200'
-                        >
-                          <span className='text-gray-700'>
-                            <span className='font-semibold text-orange-600'>
-                              {index + 1}.
-                            </span>{' '}
-                            {step}
-                          </span>
-                          <button
-                            type='button'
-                            onClick={() => deleteStep(index)}
-                            aria-label={`Remove step ${index + 1}`}
-                            className='text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-all duration-200'
-                          >
-                            <FaTrashAlt className='w-4 h-4' />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className='text-center py-8'>
-                      <svg
-                        className='w-12 h-12 text-gray-300 mx-auto mb-2'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
+              {steps.length > 0 ? (
+                <div className='mt-4 space-y-2'>
+                  {steps.map((step, index) => (
+                    <div
+                      key={index}
+                      className='flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0'
+                    >
+                      <span className='text-gray-700'>
+                        <span className='font-semibold text-orange-600'>
+                          {index + 1}.
+                        </span>{' '}
+                        {step}
+                      </span>
+                      <button
+                        type='button'
+                        onClick={() => deleteStep(index)}
+                        aria-label={`Remove step ${index + 1}`}
+                        className='text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-all duration-200'
                       >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth='2'
-                          d='M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'
-                        />
-                      </svg>
-                      <p className='text-gray-600'>No steps added</p>
+                        <FaTrashAlt className='w-4 h-4' />
+                      </button>
                     </div>
-                  )}
-                </ScrollArea>
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className='text-center py-8'>
+                  <svg
+                    className='w-12 h-12 text-gray-300 mx-auto mb-2'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='2'
+                      d='M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'
+                    />
+                  </svg>
+                  <p className='text-gray-600'>No steps added</p>
+                </div>
+              )}
             </div>
           </div>
         </form>
