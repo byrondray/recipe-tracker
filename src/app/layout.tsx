@@ -1,10 +1,15 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Fraunces } from 'next/font/google';
 import './globals.css';
 import Navbar from './components/navbar';
 import { auth } from '@/auth';
 
 const inter = Inter({ subsets: ['latin'] });
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-heading',
+  weight: ['500', '600', '700'],
+});
 
 export const metadata: Metadata = {
   title: 'CookBook+',
@@ -44,7 +49,7 @@ export default async function RootLayout({
 
   return (
     <html lang='en'>
-      <body className={inter.className}>
+      <body className={`${inter.className} ${fraunces.variable}`}>
         <Navbar session={session!} />
         {children}
       </body>

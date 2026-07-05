@@ -109,7 +109,7 @@ export default function UserRecipesPage() {
         <div className='absolute inset-0 bg-black opacity-10'></div>
         <div className='relative container mx-auto px-4 py-16'>
           <div className='max-w-4xl mx-auto text-center'>
-            <h1 className='text-4xl md:text-6xl font-bold mb-4 animate-fade-in-down'>
+            <h1 className='text-4xl md:text-6xl font-heading font-semibold mb-4 animate-fade-in-down'>
               My Profile
             </h1>
             <p className='text-lg md:text-xl opacity-90 animate-fade-in-up'>

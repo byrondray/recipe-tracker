@@ -264,7 +264,7 @@ function CreateRecipeForm() {
       <div className='relative overflow-hidden bg-gradient-to-r from-orange-400 to-red-500 text-white'>
         <div className='absolute inset-0 bg-black opacity-10'></div>
         <div className='relative container mx-auto px-4 py-16 text-center'>
-          <h1 className='text-4xl md:text-6xl font-bold mb-4 animate-fade-in-down'>
+          <h1 className='text-4xl md:text-6xl font-heading font-semibold mb-4 animate-fade-in-down'>
             Create New Recipe
           </h1>
           <p className='text-lg md:text-xl opacity-90 animate-fade-in-up'>

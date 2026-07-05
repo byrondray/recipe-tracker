@@ -43,20 +43,14 @@ export default function Navbar({ session }: { session: Session | null }) {
               <div className='w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center transform transition-transform group-hover:rotate-12'>
                 <svg
                   className='w-6 h-6 text-white'
-                  fill='none'
-                  stroke='currentColor'
+                  fill='currentColor'
                   viewBox='0 0 24 24'
                 >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                  />
+                  <path d='M12 2c-1.7 0-3.15 1.06-3.72 2.55A3.5 3.5 0 004.5 8c0 1.42.75 2.66 1.87 3.36-.24.5-.37 1.06-.37 1.64 0 1.93 1.45 3.53 3.32 3.77L9 21h6l-.32-4.23c1.87-.24 3.32-1.84 3.32-3.77 0-.58-.13-1.14-.37-1.64A3.99 3.99 0 0019.5 8a3.5 3.5 0 00-3.78-3.45C15.15 3.06 13.7 2 12 2z' />
                 </svg>
               </div>
-              <span className='text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent'>
-                Recipe Hub
+              <span className='text-xl font-heading font-semibold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent'>
+                CookBook+
               </span>
             </Link>
 

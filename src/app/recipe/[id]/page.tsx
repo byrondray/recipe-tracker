@@ -141,7 +141,7 @@ export default function RecipePage() {
           <div className='max-w-4xl mx-auto'>
             <div className='flex flex-col md:flex-row items-start gap-6'>
               <div className='flex-1'>
-                <h1 className='text-4xl md:text-5xl font-bold mb-4 animate-fade-in-down'>
+                <h1 className='text-4xl md:text-5xl font-heading font-semibold mb-4 animate-fade-in-down'>
                   {recipe.title}
                 </h1>
                 {category && (

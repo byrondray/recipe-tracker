@@ -92,7 +92,7 @@ export default function DownloadPage() {
               />
             </svg>
           </div>
-          <h1 className='text-4xl md:text-6xl font-bold mb-4 animate-fade-in-down'>
+          <h1 className='text-4xl md:text-6xl font-heading font-semibold mb-4 animate-fade-in-down'>
             Bring CookBook+ to Your Home Screen
           </h1>
           <p className='text-lg md:text-xl opacity-90 max-w-2xl mx-auto animate-fade-in-up'>
