@@ -1,21 +1,15 @@
 import { safeFetch, UnsafeUrlError } from '@/lib/safeFetch';
+import { ExtractedRecipe, ExtractRecipeError } from '@/lib/extractionTypes';
+import {
+  isInstagramUrl,
+  extractRecipeFromInstagram,
+} from '@/lib/instagramExtractor';
 
-export interface ExtractedRecipe {
-  title?: string;
-  ingredients?: string[];
-  steps?: string[];
-  imageUrl?: string;
-  sourceUrl: string;
-}
-
-export type ExtractRecipeFailureReason = 'blocked' | 'unreachable' | 'no_recipe_data';
-
-export class ExtractRecipeError extends Error {
-  constructor(public reason: ExtractRecipeFailureReason, message: string) {
-    super(message);
-    this.name = 'ExtractRecipeError';
-  }
-}
+export { ExtractRecipeError } from '@/lib/extractionTypes';
+export type {
+  ExtractedRecipe,
+  ExtractRecipeFailureReason,
+} from '@/lib/extractionTypes';
 
 type JsonLdNode = Record<string, unknown>;
 
@@ -24,6 +18,12 @@ const BOT_BLOCK_STATUS_CODES = new Set([401, 402, 403, 429]);
 export async function extractRecipeFromUrl(
   url: string
 ): Promise<ExtractedRecipe | null> {
+  // Instagram pages have no schema.org Recipe JSON-LD — the recipe lives in
+  // the caption, so those go through the LLM-based caption extractor instead.
+  if (isInstagramUrl(url)) {
+    return extractRecipeFromInstagram(url);
+  }
+
   let html: string;
   let res: Response;
   try {

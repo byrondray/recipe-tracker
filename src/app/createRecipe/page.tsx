@@ -207,8 +207,12 @@ function CreateRecipeForm() {
         mediaId = mediaResults.success.media[0].id;
       } else {
         const mediaResults = await uploadRemoteImageToS3(remoteImageUrl!);
-        if (mediaResults.error || !mediaResults.success) {
-          setFormError(mediaResults.error || 'Failed to import shared image.');
+        if (!('success' in mediaResults) || !mediaResults.success) {
+          setFormError(
+            'error' in mediaResults && mediaResults.error
+              ? mediaResults.error
+              : 'Failed to import shared image.'
+          );
           setLoading(false);
           return;
         }
