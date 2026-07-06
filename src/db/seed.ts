@@ -8,6 +8,7 @@ const categoiresSeed = [
   'Fast Food',
   'Chinese',
   'Health',
+  'Protein',
 ];
 
 const dropTables = async () => {
