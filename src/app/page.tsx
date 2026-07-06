@@ -5,6 +5,7 @@ import { getRecipes, SortOption } from './action';
 import { getCategories } from './createRecipe/actions';
 import { RESULTS_PER_PAGE } from './constants';
 import { getCurrentUserData } from './recipe/[id]/action';
+import { getFavouritedRecipeIds } from './favourites/action';
 import { Recipe } from './components/recipe';
 import { Pagination } from './components/pagination';
 import { HomePageSkeleton } from './components/skeletons';
@@ -56,6 +57,7 @@ export default function HomePage() {
   const [categoryId, setCategoryId] = useState('');
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState<SortOption>('newest');
+  const [favouritedIds, setFavouritedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -113,6 +115,17 @@ export default function HomePage() {
           }));
           setRecipes(formattedRecipes);
           setTotal(result.success.total);
+
+          if (currentUserId) {
+            const favResult = await getFavouritedRecipeIds(
+              formattedRecipes.map((r) => r.id)
+            );
+            if (favResult.success) {
+              setFavouritedIds(new Set(favResult.success.recipeIds));
+            }
+          } else {
+            setFavouritedIds(new Set());
+          }
         } else {
           setError(result.error || 'Failed to fetch recipes');
         }
@@ -125,7 +138,7 @@ export default function HomePage() {
     };
 
     fetchRecipes();
-  }, [debouncedQuery, currentPage, categoryId, minRating, sort]);
+  }, [debouncedQuery, currentPage, categoryId, minRating, sort, currentUserId]);
 
   const totalPages = Math.max(1, Math.ceil(total / RESULTS_PER_PAGE));
 
@@ -362,6 +375,7 @@ export default function HomePage() {
                     imageUrl={recipe.imageUrl}
                     userId={recipe.userId}
                     currentUserId={currentUserId}
+                    initialFavourited={favouritedIds.has(recipe.id)}
                   />
                 </div>
               ))}

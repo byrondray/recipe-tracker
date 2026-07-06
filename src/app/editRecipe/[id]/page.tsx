@@ -5,17 +5,15 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { FaTrashAlt } from 'react-icons/fa';
 import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
-import {
-  updateRecipe,
-  deleteMedia,
-  getSignedUrlForExistingFile,
-} from './action';
+import { updateRecipe, getSignedUrlForExistingFile } from './action';
 import { getCategories, generateFileName } from '@/app/createRecipe/actions';
 import { getRecipe } from '@/app/recipe/[id]/action';
 import { getCurrentUserData } from '@/app/recipe/[id]/action';
 import { Spinner } from '@/components/ui/spinner';
 import { usePageTitle } from '@/app/components/usePageTitle';
 import { RecipeFormPageSkeleton } from '@/app/components/skeletons';
+import { DeleteConfirmModal } from '@/app/components/deleteConfirmModal';
+import { ACCEPTED_IMAGE_TYPES } from '@/lib/s3';
 
 interface Category {
   id: string;
@@ -54,6 +52,7 @@ export default function EditRecipeForm() {
   const [fileSize, setFileSize] = useState<number | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [newFile, setNewFile] = useState<File | null>(null);
+  const [showRemoveImageModal, setShowRemoveImageModal] = useState(false);
   const [generatedFileName, setGeneratedFileName] = useState<string | null>(
     null
   );
@@ -90,6 +89,7 @@ export default function EditRecipeForm() {
 
           if (currentUser.success?.session?.user?.id !== recipeOwner) {
             router.push(`/recipe/${recipeId}`);
+            return;
           }
 
           const generatedFileName = await generateFileName();
@@ -151,13 +151,7 @@ export default function EditRecipeForm() {
         file = null;
       }
 
-      const acceptedImageTypes = [
-        'image/jpeg',
-        'image/png',
-        'image/gif',
-        'image/webp',
-      ];
-      if (file && !acceptedImageTypes.includes(file.type)) {
+      if (file && !ACCEPTED_IMAGE_TYPES.includes(file.type)) {
         setFormError('You can only upload images.');
         setLoading(false);
         return;
@@ -206,8 +200,9 @@ export default function EditRecipeForm() {
         steps.join('\n'),
         ingredients.join('\n'),
         data.categoryId,
-        finalFileName,
-        mimeTypeToSend
+        file ? finalFileName : null,
+        mimeTypeToSend,
+        imageDeleted
       );
 
       if (result.success) {
@@ -238,20 +233,16 @@ export default function EditRecipeForm() {
     }
   };
 
-  const deleteCurrentImage = async () => {
-    if (imagePreview) {
-      const imageId = imagePreview.split('/').pop();
-      if (imageId) {
-        const result = await deleteMedia(imageId);
-        if (result.success) {
-          setImageDeleted(true);
-          setMimeType(null);
-        } else {
-          setFormError(result.error || 'Failed to delete image.');
-        }
-      }
-      setImagePreview(null);
-    }
+  const requestRemoveImage = () => {
+    setShowRemoveImageModal(true);
+  };
+
+  const confirmRemoveImage = () => {
+    setImageDeleted(true);
+    setMimeType(null);
+    setNewFile(null);
+    setImagePreview(null);
+    setShowRemoveImageModal(false);
   };
 
   const addIngredient = () => {
@@ -474,7 +465,7 @@ export default function EditRecipeForm() {
                   />
                   <button
                     type='button'
-                    onClick={deleteCurrentImage}
+                    onClick={requestRemoveImage}
                     aria-label='Remove image'
                     className='absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110'
                   >
@@ -763,6 +754,15 @@ export default function EditRecipeForm() {
           }
         `}</style>
       </div>
+
+      <DeleteConfirmModal
+        open={showRemoveImageModal}
+        title='Remove this image?'
+        description="This will remove the recipe's photo when you save your changes."
+        confirmLabel='Remove'
+        onConfirm={confirmRemoveImage}
+        onCancel={() => setShowRemoveImageModal(false)}
+      />
     </div>
   );
 }

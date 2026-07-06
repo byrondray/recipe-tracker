@@ -56,16 +56,13 @@ export async function updateRecipe(
   ingredients: string,
   category: string,
   fileName: string | null,
-  mimeType: string | null
+  mimeType: string | null,
+  removeMedia: boolean = false
 ) {
   try {
     const session = await auth();
     if (!session) {
       throw new Error('User is not authenticated.');
-    }
-
-    if (fileName === null || fileName.trim() === '') {
-      throw new Error('FileName cannot be null or empty.');
     }
 
     const existingRecipe = await db
@@ -89,10 +86,9 @@ export async function updateRecipe(
       .returning();
 
     const mediaId = recipe[0].media;
-    let url = null;
 
     if (fileName && mimeType) {
-      url = `${process.env.NEXT_PUBLIC_AWS_BUCKET_URL}/${fileName}`;
+      const url = `${process.env.NEXT_PUBLIC_AWS_BUCKET_URL}/${fileName}`;
 
       if (mediaId) {
         await db
@@ -136,12 +132,30 @@ export async function updateRecipe(
             .returning();
         }
       }
-    } else if (!fileName && mediaId) {
+    } else if (removeMedia && mediaId) {
       await db
         .update(recipeSchema)
         .set({ media: null })
         .where(eq(recipeSchema.id, id))
         .returning();
+
+      const mediaToDelete = await db
+        .select()
+        .from(mediaSchema)
+        .where(eq(mediaSchema.id, mediaId))
+        .limit(1);
+
+      if (mediaToDelete.length > 0) {
+        const mediaKey = mediaToDelete[0].url.split('/').pop();
+        if (mediaKey) {
+          await s3.send(
+            new DeleteObjectCommand({
+              Bucket: process.env.MY_AWS_BUCKET_NAME,
+              Key: mediaKey,
+            })
+          );
+        }
+      }
 
       await db.delete(mediaSchema).where(eq(mediaSchema.id, mediaId));
     }
@@ -153,50 +167,3 @@ export async function updateRecipe(
   }
 }
 
-export async function deleteMedia(id: string) {
-  try {
-    const session = await auth();
-    if (!session) {
-      return { error: 'Not authenticated' };
-    }
-
-    const mediaToDelete = await db
-      .select()
-      .from(mediaSchema)
-      .where(eq(mediaSchema.id, id))
-      .limit(1);
-
-    if (mediaToDelete.length === 0) {
-      return { error: 'Media not found' };
-    }
-
-    if (mediaToDelete[0].userId !== session.user.id) {
-      return { error: 'You are not authorized to delete this media.' };
-    }
-
-    const mediaUrl = mediaToDelete[0].url;
-    const mediaKey = mediaUrl.split('/').pop();
-
-    if (!mediaKey) {
-      return { error: 'Could not determine the file to delete.' };
-    }
-
-    const deleteObjectCommand = new DeleteObjectCommand({
-      Bucket: process.env.MY_AWS_BUCKET_NAME,
-      Key: mediaKey,
-    });
-
-    await s3.send(deleteObjectCommand);
-
-    await db
-      .update(recipeSchema)
-      .set({ media: null })
-      .where(eq(recipeSchema.media, mediaToDelete[0].id));
-
-    await db.delete(mediaSchema).where(eq(mediaSchema.id, id));
-
-    return { success: 'Your image has successfully been deleted' };
-  } catch (error) {
-    return { error: 'Error deleting media from database or S3' };
-  }
-}

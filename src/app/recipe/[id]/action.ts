@@ -51,8 +51,6 @@ export async function deleteRecipe(id: string) {
 
     const mediaId = existing[0].media;
 
-    await db.delete(recipeSchema).where(eq(recipeSchema.id, id));
-
     if (mediaId) {
       const mediaToDelete = await db
         .select()
@@ -75,6 +73,8 @@ export async function deleteRecipe(id: string) {
         await db.delete(media).where(eq(media.id, mediaId));
       }
     }
+
+    await db.delete(recipeSchema).where(eq(recipeSchema.id, id));
 
     return { success: true };
   } catch (error) {

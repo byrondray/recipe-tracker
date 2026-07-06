@@ -148,7 +148,6 @@ const RECIPE_SCHEMA = {
 const SYSTEM_PROMPT = `You extract cooking recipes from Instagram post captions.
 The caption may start with engagement boilerplate ("123 likes, 4 comments - user on date:") — ignore it.
 Extract the dish title, the ingredient list (one entry per ingredient, keeping quantities), and the preparation steps (one entry per step, imperative voice).
-IMPORTANT: never use a comma inside a single ingredient or step — rephrase with parentheses or "and" instead, because the app stores these lists comma-separated.
 If the caption describes food but contains no usable recipe (no ingredients and no steps), set is_recipe to false.`;
 
 async function parseCaptionWithClaude(

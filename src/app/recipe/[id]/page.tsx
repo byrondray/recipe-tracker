@@ -81,30 +81,28 @@ export default function RecipePage() {
     const fetchRecipe = async () => {
       try {
         const id = Array.isArray(params.id) ? params.id[0] : params.id;
-        const result = await getRecipe(id);
-        const currentUser = await getCurrentUserData();
+        const [result, currentUser] = await Promise.all([
+          getRecipe(id),
+          getCurrentUserData(),
+        ]);
         if (result.success && result.success.recipe.length > 0) {
-          setRecipe(result.success.recipe[0].recipe);
+          const recipeData = result.success.recipe[0].recipe;
+          setRecipe(recipeData);
           setMedia(result.success.recipe[0].imageUrl);
           setCategory(result.success.recipe[0].category);
-          if (currentUser.success?.session?.user) {
-            setCurrentUserId(currentUser.success.session.user.id);
-            const favResult = await isRecipeFavourited(
-              result.success.recipe[0].recipe.id
-            );
+          const userId = currentUser.success?.session?.user?.id;
+          if (userId) {
+            setCurrentUserId(userId);
+            const isOwner = userId === recipeData.userId;
+            const [favResult, countResult] = await Promise.all([
+              isRecipeFavourited(recipeData.id),
+              isOwner ? getFavouriteCount(recipeData.id) : Promise.resolve(null),
+            ]);
             if (favResult.success) {
               setFavourited(favResult.success.favourited);
             }
-            if (
-              currentUser.success.session.user.id ===
-              result.success.recipe[0].recipe.userId
-            ) {
-              const countResult = await getFavouriteCount(
-                result.success.recipe[0].recipe.id
-              );
-              if (countResult.success) {
-                setFavouriteCount(countResult.success.count);
-              }
+            if (countResult?.success) {
+              setFavouriteCount(countResult.success.count);
             }
           }
         } else {

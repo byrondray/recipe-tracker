@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { currentUser } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
 import { users } from '@/db/schema/schema';
@@ -16,8 +17,10 @@ export interface AppSession {
 // Clerk owns the canonical user record; this mirrors the signed-in user into
 // our local `users` table so `recipe.userId`/`media.userId` have something to
 // FK against, then returns a NextAuth-shaped session so existing call sites
-// (session.user.id) didn't need to change.
-export async function auth(): Promise<AppSession | null> {
+// (session.user.id) didn't need to change. Wrapped in React's cache() so the
+// Clerk lookup + DB sync only runs once per request, no matter how many
+// server actions call auth() during that request.
+export const auth = cache(async (): Promise<AppSession | null> => {
   const clerkUser = await currentUser();
   if (!clerkUser) return null;
 
@@ -48,4 +51,4 @@ export async function auth(): Promise<AppSession | null> {
   }
 
   return { user: { id: clerkUser.id, name, email, image } };
-}
+});

@@ -2,7 +2,7 @@
 
 import { category, media, recipe, review } from '@/db/schema/schema';
 import { db } from '@/lib/db';
-import { and, avg, count, desc, eq, ilike, or, sql as drizzleSql } from 'drizzle-orm';
+import { and, avg, desc, eq, ilike, or, sql as drizzleSql } from 'drizzle-orm';
 import { RESULTS_PER_PAGE } from './constants';
 
 export type SortOption = 'newest' | 'oldest' | 'topRated';
@@ -30,7 +30,8 @@ export async function getRecipes({
       conditions.push(
         or(
           ilike(category.name, `%${searchQuery}%`),
-          ilike(recipe.ingredients, `%${searchQuery}%`)
+          ilike(recipe.ingredients, `%${searchQuery}%`),
+          ilike(recipe.title, `%${searchQuery}%`)
         )
       );
     }

@@ -8,7 +8,7 @@ import {
   recipe as recipeSchema,
 } from '@/db/schema/schema';
 import { db } from '@/lib/db';
-import { and, count, eq } from 'drizzle-orm';
+import { and, count, eq, inArray } from 'drizzle-orm';
 import crypto from 'crypto';
 
 export async function isRecipeFavourited(recipeId: string) {
@@ -31,6 +31,31 @@ export async function isRecipeFavourited(recipeId: string) {
       .limit(1);
 
     return { success: { favourited: existing.length > 0 } };
+  } catch (error) {
+    console.error('Error checking favourite status:', error);
+    return { error: 'Error checking favourite status' };
+  }
+}
+
+export async function getFavouritedRecipeIds(recipeIds: string[]) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId || recipeIds.length === 0) {
+      return { success: { recipeIds: [] as string[] } };
+    }
+
+    const existing = await db
+      .select({ recipeId: favouriteRecipe.recipeId })
+      .from(favouriteRecipe)
+      .where(
+        and(
+          eq(favouriteRecipe.userId, userId),
+          inArray(favouriteRecipe.recipeId, recipeIds)
+        )
+      );
+
+    return { success: { recipeIds: existing.map((r) => r.recipeId) } };
   } catch (error) {
     console.error('Error checking favourite status:', error);
     return { error: 'Error checking favourite status' };

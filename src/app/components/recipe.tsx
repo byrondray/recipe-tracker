@@ -20,6 +20,7 @@ export const Recipe = ({
   onDeleted,
   showDeleteButton = false,
   onUnfavourited,
+  initialFavourited,
 }: {
   id: string;
   title: string;
@@ -30,17 +31,18 @@ export const Recipe = ({
   onDeleted?: (id: string) => void;
   showDeleteButton?: boolean;
   onUnfavourited?: (id: string) => void;
+  initialFavourited?: boolean;
 }) => {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [favourited, setFavourited] = useState(false);
+  const [favourited, setFavourited] = useState(initialFavourited ?? false);
   const [togglingFavourite, setTogglingFavourite] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (!currentUserId) return;
+    if (!currentUserId || initialFavourited !== undefined) return;
     let cancelled = false;
 
     isRecipeFavourited(id).then((result) => {
@@ -52,7 +54,7 @@ export const Recipe = ({
     return () => {
       cancelled = true;
     };
-  }, [id, currentUserId]);
+  }, [id, currentUserId, initialFavourited]);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
