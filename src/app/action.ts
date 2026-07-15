@@ -2,7 +2,7 @@
 
 import { category, media, recipe, review } from '@/db/schema/schema';
 import { db } from '@/lib/db';
-import { and, avg, desc, eq, ilike, or, sql as drizzleSql } from 'drizzle-orm';
+import { and, desc, eq, ilike, or, sql as drizzleSql } from 'drizzle-orm';
 import { RESULTS_PER_PAGE } from './constants';
 
 export type SortOption = 'newest' | 'oldest' | 'topRated';
@@ -13,6 +13,10 @@ interface GetRecipesOptions {
   categoryId?: string;
   minRating?: number;
   sort?: SortOption;
+}
+
+function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
 }
 
 export async function getRecipes({
@@ -27,11 +31,12 @@ export async function getRecipes({
 
     const conditions = [];
     if (searchQuery.trim() !== '') {
+      const escapedQuery = escapeLikePattern(searchQuery);
       conditions.push(
         or(
-          ilike(category.name, `%${searchQuery}%`),
-          ilike(recipe.ingredients, `%${searchQuery}%`),
-          ilike(recipe.title, `%${searchQuery}%`)
+          ilike(category.name, `%${escapedQuery}%`),
+          ilike(recipe.ingredients, `%${escapedQuery}%`),
+          ilike(recipe.title, `%${escapedQuery}%`)
         )
       );
     }
@@ -40,7 +45,7 @@ export async function getRecipes({
     }
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    const averageRating = avg(review.rating);
+    const averageRating = drizzleSql<number>`avg(${review.rating})`;
     const havingClause =
       minRating > 0 ? drizzleSql`${averageRating} >= ${minRating}` : undefined;
 
@@ -48,7 +53,7 @@ export async function getRecipes({
       sort === 'oldest'
         ? recipe.createdAt
         : sort === 'topRated'
-        ? desc(averageRating)
+        ? drizzleSql`${averageRating} desc nulls last`
         : desc(recipe.createdAt);
 
     const baseQuery = db

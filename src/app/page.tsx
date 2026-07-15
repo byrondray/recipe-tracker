@@ -94,6 +94,8 @@ export default function HomePage() {
   }, [debouncedQuery, categoryId, minRating, sort]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchRecipes = async () => {
       setIsSearching(true);
       try {
@@ -104,6 +106,8 @@ export default function HomePage() {
           minRating,
           sort,
         });
+
+        if (cancelled) return;
 
         if (result.success?.recipes) {
           const formattedRecipes = result.success.recipes.map((r: any) => ({
@@ -120,7 +124,7 @@ export default function HomePage() {
             const favResult = await getFavouritedRecipeIds(
               formattedRecipes.map((r) => r.id)
             );
-            if (favResult.success) {
+            if (!cancelled && favResult.success) {
               setFavouritedIds(new Set(favResult.success.recipeIds));
             }
           } else {
@@ -130,14 +134,22 @@ export default function HomePage() {
           setError(result.error || 'Failed to fetch recipes');
         }
       } catch (error) {
-        setError('Something went wrong while fetching recipes.');
+        if (!cancelled) {
+          setError('Something went wrong while fetching recipes.');
+        }
       } finally {
-        setLoading(false);
-        setIsSearching(false);
+        if (!cancelled) {
+          setLoading(false);
+          setIsSearching(false);
+        }
       }
     };
 
     fetchRecipes();
+
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedQuery, currentPage, categoryId, minRating, sort, currentUserId]);
 
   const totalPages = Math.max(1, Math.ceil(total / RESULTS_PER_PAGE));

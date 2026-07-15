@@ -8,7 +8,12 @@ import { eq } from 'drizzle-orm';
 import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { auth } from '@/auth';
 import { getSignedUrl as getAWSsignedURL } from '@aws-sdk/s3-request-presigner';
-import { s3, ACCEPTED_IMAGE_TYPES, MAX_IMAGE_FILE_SIZE } from '@/lib/s3';
+import {
+  s3,
+  ACCEPTED_IMAGE_TYPES,
+  MAX_IMAGE_FILE_SIZE,
+  deleteMediaAndS3Object,
+} from '@/lib/s3';
 
 export async function getSignedUrlForExistingFile(
   type: string,
@@ -91,11 +96,27 @@ export async function updateRecipe(
       const url = `${process.env.NEXT_PUBLIC_AWS_BUCKET_URL}/${fileName}`;
 
       if (mediaId) {
+        const oldMedia = await db
+          .select()
+          .from(mediaSchema)
+          .where(eq(mediaSchema.id, mediaId))
+          .limit(1);
+        const oldMediaKey = oldMedia[0]?.url.split('/').pop();
+
         await db
           .update(mediaSchema)
           .set({ url, type: mimeType })
           .where(eq(mediaSchema.id, mediaId))
           .returning();
+
+        if (oldMediaKey && oldMediaKey !== fileName) {
+          await s3.send(
+            new DeleteObjectCommand({
+              Bucket: process.env.MY_AWS_BUCKET_NAME,
+              Key: oldMediaKey,
+            })
+          );
+        }
       } else {
         const existingMedia = await db
           .select()
@@ -139,25 +160,7 @@ export async function updateRecipe(
         .where(eq(recipeSchema.id, id))
         .returning();
 
-      const mediaToDelete = await db
-        .select()
-        .from(mediaSchema)
-        .where(eq(mediaSchema.id, mediaId))
-        .limit(1);
-
-      if (mediaToDelete.length > 0) {
-        const mediaKey = mediaToDelete[0].url.split('/').pop();
-        if (mediaKey) {
-          await s3.send(
-            new DeleteObjectCommand({
-              Bucket: process.env.MY_AWS_BUCKET_NAME,
-              Key: mediaKey,
-            })
-          );
-        }
-      }
-
-      await db.delete(mediaSchema).where(eq(mediaSchema.id, mediaId));
+      await deleteMediaAndS3Object(mediaId);
     }
 
     return { success: recipe };

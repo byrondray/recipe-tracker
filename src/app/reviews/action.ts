@@ -93,13 +93,24 @@ export async function createReview(
       return { error: 'You have already reviewed this recipe' };
     }
 
-    await db.insert(reviewSchema).values({
-      id: crypto.randomBytes(16).toString('hex'),
-      userId,
-      recipeId,
-      rating,
-      comment: comment.trim() || null,
-    });
+    const inserted = await db
+      .insert(reviewSchema)
+      .values({
+        id: crypto.randomBytes(16).toString('hex'),
+        userId,
+        recipeId,
+        rating,
+        comment: comment.trim() || null,
+      })
+      .onConflictDoNothing({
+        target: [reviewSchema.userId, reviewSchema.recipeId],
+      })
+      .returning();
+
+    if (inserted.length === 0) {
+      // A concurrent request already created the review for this user/recipe pair.
+      return { error: 'You have already reviewed this recipe' };
+    }
 
     return { success: true };
   } catch (error) {

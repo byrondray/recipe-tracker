@@ -88,11 +88,20 @@ export async function toggleFavourite(recipeId: string) {
       return { success: { favourited: false } };
     }
 
-    await db.insert(favouriteRecipe).values({
-      id: crypto.randomBytes(16).toString('hex'),
-      userId,
-      recipeId,
-    });
+    // onConflictDoNothing means a concurrent double-click that already
+    // inserted the row doesn't throw here — the recipe ends up favourited
+    // either way, whichever request's insert actually landed.
+    await db
+      .insert(favouriteRecipe)
+      .values({
+        id: crypto.randomBytes(16).toString('hex'),
+        userId,
+        recipeId,
+      })
+      .onConflictDoNothing({
+        target: [favouriteRecipe.userId, favouriteRecipe.recipeId],
+      });
+
     return { success: { favourited: true } };
   } catch (error) {
     console.error('Error toggling favourite:', error);

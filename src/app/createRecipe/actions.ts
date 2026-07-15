@@ -23,13 +23,6 @@ export async function generateFileName(bytes = 32) {
   return generateFileNameSync(bytes);
 }
 
-export const computeSha256 = async (base64Data: string): Promise<string> => {
-  const buffer = Buffer.from(base64Data.split(',')[1], 'base64');
-  const hash = crypto.createHash('sha256');
-  hash.update(buffer);
-  return hash.digest('hex');
-};
-
 export async function getSignedUrl(type: string, size: number) {
   const session = await auth();
   if (!session) return { error: 'Not authenticated' };

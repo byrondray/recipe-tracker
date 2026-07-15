@@ -4,8 +4,7 @@ import { auth } from '@/auth';
 import { category, media, recipe as recipeSchema } from '@/db/schema/schema';
 import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
-import { DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { s3 } from '@/lib/s3';
+import { deleteMediaAndS3Object } from '@/lib/s3';
 
 export async function getRecipe(id: string) {
   const recipe = await db
@@ -52,26 +51,7 @@ export async function deleteRecipe(id: string) {
     const mediaId = existing[0].media;
 
     if (mediaId) {
-      const mediaToDelete = await db
-        .select()
-        .from(media)
-        .where(eq(media.id, mediaId))
-        .limit(1);
-
-      if (mediaToDelete.length > 0) {
-        const mediaKey = mediaToDelete[0].url.split('/').pop();
-
-        if (mediaKey) {
-          await s3.send(
-            new DeleteObjectCommand({
-              Bucket: process.env.MY_AWS_BUCKET_NAME,
-              Key: mediaKey,
-            })
-          );
-        }
-
-        await db.delete(media).where(eq(media.id, mediaId));
-      }
+      await deleteMediaAndS3Object(mediaId);
     }
 
     await db.delete(recipeSchema).where(eq(recipeSchema.id, id));

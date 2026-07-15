@@ -198,5 +198,27 @@ async function parseCaptionWithClaude(
     );
   }
 
-  return JSON.parse(text) as ParsedCaptionRecipe;
+  let parsed: ParsedCaptionRecipe;
+  try {
+    parsed = JSON.parse(text) as ParsedCaptionRecipe;
+  } catch (error) {
+    console.error('Failed to parse Claude caption extraction output:', error);
+    throw new ExtractRecipeError(
+      'no_recipe_data',
+      'Could not extract a recipe from this Instagram post.'
+    );
+  }
+
+  const MAX_LIST_ITEMS = 100;
+  if (
+    parsed.ingredients.length > MAX_LIST_ITEMS ||
+    parsed.steps.length > MAX_LIST_ITEMS
+  ) {
+    throw new ExtractRecipeError(
+      'no_recipe_data',
+      'Could not extract a recipe from this Instagram post.'
+    );
+  }
+
+  return parsed;
 }
